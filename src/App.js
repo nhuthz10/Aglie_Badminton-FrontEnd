@@ -5,12 +5,14 @@ import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
 import { path } from "./utils";
+import Login from "./pages/login/Login";
 
 function App() {
   return (
     <div>
       <Routes>
-        <Route path={path.HOME} element={<Home />} />
+        <Route path={path.HOME} element={<Home />} />{" "}
+        <Route path={path.LOGIN} element={<Login />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
