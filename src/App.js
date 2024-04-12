@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
 import { path } from "./utils";
+import Register from "./pages/register/Register";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path={path.HOME} element={<Home />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
+        <Route path={path.REGISTER} element={<Register />} />
       </Routes>
       <ToastContainer
         position="top-right"
