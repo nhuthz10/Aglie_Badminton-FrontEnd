@@ -9,7 +9,6 @@ import { path } from "./utils";
 function App() {
   return (
     <div>
-      <div>ok</div>
       <Routes>
         <Route path={path.HOME} element={<Home />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />
