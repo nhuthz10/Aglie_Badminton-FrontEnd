@@ -6,11 +6,21 @@ import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
 import { path } from "./utils";
 import Login from "./pages/login/Login";
+import AdminLayout from "./layout/adminLayout/AdminLayout";
+import AdminRoutes from "./components/adminRoutes/AdminRoutes";
 
 function App() {
   return (
     <div>
       <Routes>
+        <Route
+          path={path.ADMIN}
+          element={
+            <AdminLayout>
+              <AdminRoutes />
+            </AdminLayout>
+          }
+        />
         <Route path={path.HOME} element={<Home />} />{" "}
         <Route path={path.LOGIN} element={<Login />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />

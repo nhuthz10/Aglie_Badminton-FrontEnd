@@ -3,8 +3,12 @@ import axios from "../axios";
 let handleLoginService = (email, password) => {
   return axios.post("/api/user/login", { email: email, password: password });
 };
-let handleCreatCart = (data) => {
-  return axios.post("/api/cart/create-cart", data);
+let handleGetAllRoleService = () => {
+  return axios.get(`/api/user/get-all-role`);
 };
-
-export { handleLoginService, handleCreatCart };
+let handleGetAllUserService = (limit, page, name) => {
+  return axios.get(
+    `/api/user/get-all-user?limit=${limit}&page=${page}&name=${name}`
+  );
+};
+export { handleLoginService, handleGetAllRoleService, handleGetAllUserService };

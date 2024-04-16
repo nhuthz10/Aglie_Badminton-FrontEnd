@@ -2,15 +2,8 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import {
-  logIn,
-  updateFavourites,
-  updateCartId,
-} from "../../redux-toolkit/userSlice";
-import {
-  handleLoginService,
-  handleCreatCart,
-} from "../../services/userService";
+import { logIn, updateFavourites } from "../../redux-toolkit/userSlice";
+import { handleLoginService } from "../../services/userService";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -52,8 +45,6 @@ function Login() {
       if (res && res.errCode === 0) {
         dispatch(logIn(res?.user));
         dispatch(updateFavourites(res?.user?.favourites));
-        let cartId = await handleCreatCart({ userId: res?.user?.id });
-        dispatch(updateCartId(cartId?.data));
         toast.success("Đăng nhập thành công");
       }
       navigate("/");
