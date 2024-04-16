@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { handleRegisterService } from "../../services/userService";
+import Loading from "../../components/Loading/Loading";
+import { useNavigate } from "react-router-dom";
 
 import styles from "../login/Login.module.scss";
 import styless from "./Register.module.scss";
@@ -53,8 +57,10 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [firstClickRegister, setFirstClickRegister] = useState(false);
 
+  const navigate = useNavigate();
 
   const handlePassword = (e) => {
     setPassword(e.target.value);
@@ -81,11 +87,41 @@ function Register() {
 
   const {
     register,
+    handleSubmit,
     formState: { errors },
   } = useForm();
 
+  const onSubmit = async (data) => {
+    if (checkPassword) {
+      setIsLoading(true);
+      try {
+        let res = await handleRegisterService({
+          email: data.email,
+          userName: data.userName,
+          password: data.password,
+          roleId: "R2",
+        });
+
+        if (res && res.errCode === 0) {
+          toast.success(
+            "Vui lòng kiểm tra email của bạn. Để kịch hoạt tài khoản"
+          );
+        }
+        navigate("/login");
+      } catch (err) {
+        if (err.response.data.errCode === 2) {
+          toast.error("Email của bạn đã tồn tại");
+        } else {
+          toast.error(err.response.data.message);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   return (
+    <Loading loading={isLoading}>
       <div className={styles.page}>
         <div className={styles.container}>
           <div className={styles.loginForm}>
@@ -96,6 +132,7 @@ function Register() {
 
             <form
               method="POST"
+              onSubmit={handleSubmit(onSubmit)}
               className={styless.formSubmit}
             >
               <div className={styles.form}>
@@ -187,6 +224,7 @@ function Register() {
           <img src={image} alt="img"></img>
         </div>
       </div>
+    </Loading>
   );
 }
 
