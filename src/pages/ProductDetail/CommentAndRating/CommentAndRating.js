@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Rating from "@mui/material/Rating";
-import "./CommentAndRating.scss";
+import "./CommnetAndRating.scss";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import {
+  handleAllFeedbackService,
+  handleDeleteFeedbackService,
+} from "../../../services/feedbackService";
 import Modal from "@mui/material/Modal";
 import EditCommentAndRating from "../EditCommentAndRating/EditCommentAndRating";
-import avatarDefault from "../../assets/default-avatar.png";
+import avatarDefault from "../../../assets/default-avatar.png";
 
 const formatDate = (date) => {
   const dateTime = dayjs(date);
@@ -30,6 +34,30 @@ function CommentAndRating() {
   const [allFeedback, setAllFeeddack] = useState([]);
   const [currentFeedback, setCurrentFeedback] = useState({});
   const [isOpen, setIsOpen] = useState(false);
+  let { productId } = useParams();
+  const userId = useSelector((state) => state.user.userInfo.id);
+
+  let getAllDataFeedback = async () => {
+    try {
+      let res = await handleAllFeedbackService(productId);
+      if (res && res.errCode === 0) {
+        let result = res?.data?.map((item) => {
+          item.userId === userId
+            ? (item.myReview = true)
+            : (item.myReview = false);
+          return item;
+        });
+        setAllFeeddack(result);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
+
+  useEffect(() => {
+    getAllDataFeedback();
+  }, [userId]);
 
   const handleClose = () => {
     setIsOpen(false);
@@ -44,31 +72,73 @@ function CommentAndRating() {
     setIsOpen(true);
   };
 
+  let handleDeleteFeedback = async (id) => {
+    try {
+      let res = await handleDeleteFeedbackService(id);
+      if (res && res.errCode === 0) {
+        getAllDataFeedback();
+        toast.success("Xóa đánh giá thành công");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+      console.log(error);
+    }
+  };
+
   return (
     <div className="feedback-container">
       <div className="comment-rating-form">
-        <div className="review-item">
-          <div className="user-info">
-            <img src={avatarDefault} alt="Avatar" className="user-avatar" />
-            <div className="wrap-user-name">
-              <div className="user-name">Minh Nhut</div>
-              <div className="timestamp">13/2/2024</div>
+        {allFeedback &&
+          allFeedback.length > 0 &&
+          allFeedback.map((review, index) => (
+            <div key={index} className="review-item">
+              <div className="user-info">
+                <img
+                  src={review.avatar ? review.avatar : avatarDefault}
+                  alt="Avatar"
+                  className="user-avatar"
+                />
+                <div className="wrap-user-name">
+                  <div className="user-name">{review.userName}</div>
+                  <div className="timestamp">
+                    {formatDate(review.updatedAt)}
+                  </div>
+                </div>
+              </div>
+              <Rating
+                name={`rating-${index}`}
+                style={{ fontSize: "3.675rem", margin: "10px 0" }}
+                value={review.rating}
+                precision={0.5}
+                readOnly
+              />
+              <div className="user-comment">{review.description}</div>
+              {review.myReview ? (
+                <div className="edit-feedback">
+                  <div
+                    className="edit-feedback-btn"
+                    style={{ marginLeft: "auto" }}
+                    onClick={() =>
+                      handleUpdateFeedback(
+                        review.description,
+                        review.rating,
+                        review.id
+                      )
+                    }
+                  >
+                    Chính sửa
+                  </div>
+                  <div
+                    className="edit-feedback-btn"
+                    onClick={() => handleDeleteFeedback(review.id)}
+                  >
+                    Xóa
+                  </div>
+                </div>
+              ) : null}
             </div>
-          </div>
-          <Rating
-            style={{ fontSize: "3.675rem", margin: "10px 0" }}
-            value={5}
-            precision={0.5}
-            readOnly
-          />
-          <div className="user-comment">Sản phẩm tốt</div>
-          <div className="edit-feedback">
-            <div className="edit-feedback-btn" style={{ marginLeft: "auto" }}>
-              Chính sửa
-            </div>
-            <div className="edit-feedback-btn">Xóa</div>
-          </div>
-        </div>
+          ))}
       </div>
       <Modal open={isOpen} onClose={handleClose}>
         <div style={{ ...style }}>
@@ -80,6 +150,7 @@ function CommentAndRating() {
           <EditCommentAndRating
             setIsOpen={setIsOpen}
             data={currentFeedback}
+            getAllDataFeedback={getAllDataFeedback}
           ></EditCommentAndRating>
         </div>
       </Modal>

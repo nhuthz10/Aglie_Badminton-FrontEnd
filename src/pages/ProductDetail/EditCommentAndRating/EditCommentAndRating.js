@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Rating from "@mui/material/Rating";
 import "./EditCommentAndRating.scss";
+import { handleUpdateFeedbackService } from "../../../services/feedbackService";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-function EditCommentAndRating({ data, setIsOpen }) {
+function EditCommentAndRating({ data, setIsOpen, getAllDataFeedback }) {
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
+  const isLogin = useSelector((state) => state.user.login);
 
   useEffect(() => {
     if (data) {
@@ -21,6 +23,30 @@ function EditCommentAndRating({ data, setIsOpen }) {
 
   const handleRatingChange = (event, newRating) => {
     setRating(newRating);
+  };
+
+  const submitCommentAndRating = async () => {
+    if (isLogin) {
+      try {
+        let res = await handleUpdateFeedbackService({
+          id: data.id,
+          description: comment,
+          rating: rating,
+        });
+        if (res && res.errCode === 0) {
+          setComment("");
+          setRating(0);
+          setIsOpen(false);
+          getAllDataFeedback();
+          toast.success("Chỉnh sửa đánh giá sản phầm thành công");
+        }
+      } catch (error) {
+        toast.error(error?.response?.data?.message);
+        console.log(error);
+      }
+    } else {
+      toast.error("Vui lòng đăng nhập");
+    }
   };
 
   return (
@@ -41,7 +67,9 @@ function EditCommentAndRating({ data, setIsOpen }) {
       ></textarea>
 
       <div className="ctn_send_btn">
-        <button className="contain_send_btn">Hoàn thành</button>
+        <button className="contain_send_btn" onClick={submitCommentAndRating}>
+          Hoàn thành
+        </button>
       </div>
     </div>
   );
