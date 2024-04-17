@@ -2,19 +2,32 @@ import React, { useEffect } from "react";
 import { Button, TextField, MenuItem } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useForm, Controller } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import "../admin.scss";
+import {
+  handleUpdateSizeService,
+  handleCreateSizeService,
+} from "../../services/productService";
+import { loadingAdmin } from "../../redux-toolkit/adminSlice";
+import { useDispatch } from "react-redux";
+import CreateCode from "../../utils/commonUtils";
+import { path as path_constant } from "../../utils";
 
 function SizePost() {
   const {
+    handleSubmit,
     control,
     setValue,
     formState: { errors },
   } = useForm();
+  const navigate = useNavigate();
   const { state, pathname } = useLocation();
   const { data, productTypeData } = state || {};
   const path = pathname.split("/");
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (data) {
       setValue("sizeID", data.sizeId);
@@ -23,8 +36,76 @@ function SizePost() {
     }
   }, [data, setValue]);
 
+  const onSubmit = async (submitData) => {
+    if (path[3] === "create") {
+      try {
+        dispatch(loadingAdmin(true));
+        let res = await handleCreateSizeService({
+          sizeId: submitData.sizeID,
+          productTypeId: submitData.productType,
+          sizeName: submitData.sizeName,
+        });
+        if (res && res.errCode === 0) {
+          toast.success("Thêm size thành công");
+          setValue("sizeID", "");
+          setValue("productType", "");
+          setValue("sizeName", "");
+          navigate(`/admin/${path_constant.PRODUCT_SIZE_ADMIN}`);
+        }
+      } catch (err) {
+        if (err?.response?.data?.errCode === 2) {
+          toast.error("Mã size đã tồn tại");
+        } else if (err?.response?.data?.errCode === 3) {
+          toast.error("Tên size đã tồn tại");
+        } else {
+          toast.error(err?.response?.data?.message);
+        }
+      } finally {
+        dispatch(loadingAdmin(false));
+      }
+    } else if (path[3] === "edit") {
+      try {
+        dispatch(loadingAdmin(true));
+        let res = await handleUpdateSizeService({
+          id: data.id,
+          sizeId: submitData.sizeID,
+          productTypeId: submitData.productType,
+          sizeName: submitData.sizeName,
+        });
+        if (res && res.errCode === 0) {
+          toast.success("Cập nhật size thành công");
+          setValue("sizeID", "");
+          setValue("productType", "");
+          setValue("sizeName", "");
+          navigate(`/admin/${path_constant.PRODUCT_SIZE_ADMIN}`);
+        }
+      } catch (err) {
+        if (err?.response?.data?.errCode === 2) {
+          toast.error("Mã size đã tồn tại");
+        } else if (err?.response?.data?.errCode === 3) {
+          toast.error("Tên size đã tồn tại");
+        } else if (err?.response?.data?.errCode === 4) {
+          toast.error("Size không tồn tại");
+        } else {
+          toast.error(err?.response?.data?.message);
+        }
+      } finally {
+        dispatch(loadingAdmin(false));
+      }
+    }
+  };
+
+  const handleChangeSizeName = (e) => {
+    if (e.target.value) {
+      let sizeId = CreateCode(e.target.value);
+      setValue("sizeID", sizeId, { shouldValidate: true });
+    } else {
+      setValue("sizeID", "", { shouldValidate: false });
+    }
+  };
+
   return (
-    <form className="Modal-Add">
+    <form onSubmit={handleSubmit(onSubmit)} className="Modal-Add">
       <h2 className="header-text">
         {path[3] === "create" ? "Thêm size" : "Sửa size"}
       </h2>
@@ -116,6 +197,7 @@ function SizePost() {
               variant="filled"
               onChange={(e) => {
                 field.onChange(e);
+                handleChangeSizeName(e);
               }}
               hiddenLabel
               inputProps={{ className: "text-field-text" }}

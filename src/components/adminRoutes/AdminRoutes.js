@@ -11,7 +11,7 @@ import SizeAdmin from "../../adminPages/sizeAdmin/sizeAdmin";
 // import ProductAdmin from "../../adminPages/productAdmin/productAdmin";
 // import UserPost from "../../adminPages/userAdmin/UserPost";
 // import ProductTypePost from "../../adminPages/productTypeAdmin/ProductTypePost";
-// import SizePost from "../../adminPages/sizeAdmin/SizePost";
+import SizePost from "../../adminPages/sizeAdmin/SizePost";
 // import BrandPost from "../../adminPages/brandAdmin/brandPost";
 // import ProductPost from "../../adminPages/productAdmin/ProductPost";
 // import ProductSizeAdmin from "../../adminPages/productAdmin/productSizeAdmin";
@@ -37,6 +37,10 @@ function AdminRoutes() {
       {/* <Route path={path.ORDER_DELIVERY_ADMIN} element={<OrderAdmin />} /> */}
       {/* <Route path={path.ORDER_DONE_ADMIN} element={<OrderAdmin />} /> */}
       {/* <Route path={path.ORDER_CANCELED_ADMIN} element={<OrderAdmin />} /> */}
+      <Route
+        path={`${path.PRODUCT_SIZE_ADMIN}/${path.POST_ADMIN}`}
+        element={<SizePost />}
+      />
       {/* <Route path={path.ORDER_DETAIL} element={<OrderPost />} /> */}
       {/* <Route
         path={`${path.USER_ADMIN}/${path.POST_ADMIN}`}
@@ -54,10 +58,7 @@ function AdminRoutes() {
         path={`${path.PRODUCT_TYPE_ADMIN}/${path.PUT_ADMIN}`}
         element={<ProductTypePost />}
       />
-      <Route
-        path={`${path.PRODUCT_SIZE_ADMIN}/${path.POST_ADMIN}`}
-        element={<SizePost />}
-      />
+     
       <Route
         path={`${path.PRODUCT_SIZE_ADMIN}/${path.PUT_ADMIN}`}
         element={<SizePost />}
