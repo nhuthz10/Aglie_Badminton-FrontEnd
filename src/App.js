@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound/NotFound";
+import ProductRoutes from "./router/productRoutes";
 import { path } from "./utils";
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
     <div>
       <Routes>
         <Route path={path.HOME} element={<Home />} />
+        <Route path={path.PRODUCT} element={<ProductRoutes />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
