@@ -9,6 +9,7 @@ import "./Home.scss";
 function Home() {
   return (
     <div className="home-container">
+      <Banner></Banner>
       <div className="home-content">
         <div className="home-benefit">
         </div>
