@@ -86,7 +86,6 @@ function Cart() {
     if (Object.keys(currentProduct).length !== 0) {
       updateProductCart(currentProduct);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProductDebounce]);
 
   useEffect(() => {
