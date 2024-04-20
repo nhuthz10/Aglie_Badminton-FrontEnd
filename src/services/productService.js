@@ -8,4 +8,11 @@ let hadnleAddProductToCart = (data) => {
   return axios.post(`/api/cart/add-product-to-cart`, data);
 };
 
-export { handleGetProductService, hadnleAddProductToCart };
+let handleUpdateProductTypeService = (data) => {
+  return axios.put(`/api/product-type/update-product-type`, data);
+};
+export {
+  handleGetProductService,
+  hadnleAddProductToCart,
+  handleUpdateProductTypeService,
+};
