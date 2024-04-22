@@ -135,9 +135,7 @@ const Product = () => {
         <div className={styles.sideBar_element}>
           <h1 className={styles.sideBar_element_title}>Thương hiệu</h1>
           <div className={styles.sideBar_line}></div>
-          {brands &&
-            brands.length > 0 &&
-            brands.map((item, index) => {
+          {brands && brands.length > 0 && brands.map((item, index) => {
               return (
                 <div className={styles.sideBar_element_content} key={index}>
                   <p>{item.brandName}</p>
@@ -211,7 +209,7 @@ const Product = () => {
         <div className={styles.mainContent}>
           {paginationData?.length === 0 && !isLoading ? (
             <div className={styles.noProduct}>
-              <h1>Không có sản phẩm nào</h1>
+              <h1>Không có sản phẩm nào </h1>
               <img src={noProduct} alt=":((" />
             </div>
           ) : (
@@ -229,7 +227,7 @@ const Product = () => {
                         style={{
                           objectFit:
                             item.productTypeData?.productTypeName ===
-                            "Áo cầu lông"
+                            "Áo cầu lông "
                               ? "cover"
                               : "contain",
                         }}
@@ -277,7 +275,7 @@ const Product = () => {
                             style={{
                               color:
                                 item.discount !== 0
-                                  ? "rgba(0,0,0,.54)"
+                                  ? "rgba(0,0,0,0.54)"
                                   : "var(--primary-color)",
                               textDecoration:
                                 item.discount !== 0 ? "line-through" : "",
