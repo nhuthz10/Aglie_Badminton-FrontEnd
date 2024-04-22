@@ -40,9 +40,9 @@ function Home() {
     <div className="home-container">
       <Banner></Banner>
       <div className="home-content">
-        {/* <Introduce productTypesData={allProductType}></Introduce> */}
+        <Introduce productTypesData={allProductType}></Introduce>
         <div className="home-benefit">
-          {/* <Grid container spacing={12}>
+          <Grid container spacing={12}>
             <Grid item xs={4}>
               <div className="home-benefit-wrap-item">
                 <div className="home-benefit-item">
@@ -85,7 +85,7 @@ function Home() {
                 </div>
               </div>
             </Grid>
-          </Grid> */}
+          </Grid>
         </div>
       </div>
     </div>
