@@ -9,3 +9,5 @@ export const path = {
   POST_ADMIN: "create",
   PUT_ADMIN: "edit",
 };
+
+export const LIMIT = 10;
