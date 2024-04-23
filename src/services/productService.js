@@ -11,8 +11,13 @@ let hadnleAddProductToCart = (data) => {
 let handleUpdateProductTypeService = (data) => {
   return axios.put(`/api/product-type/update-product-type`, data);
 };
+
+let handleDeleteProductService = (id) => {
+  return axios.delete(`/api/product/delete-product?id=${id}`);
+};
 export {
   handleGetProductService,
   hadnleAddProductToCart,
   handleUpdateProductTypeService,
+  handleDeleteProductService,
 };
