@@ -9,7 +9,7 @@ import {
   handleGetProductService,
   hadnleAddProductToCart,
 } from "../../services/productService";
-import CommentAndRatingForm from "./CommentAndRatingForm";
+import CommentAndRatingForm from "./CommentAndRating/CommentAndRating";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
