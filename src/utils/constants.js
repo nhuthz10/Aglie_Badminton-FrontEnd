@@ -5,4 +5,5 @@ export const path = {
   LOGIN: "/login",
   REGISTER: "/register",
   NOT_FOUND: "/not-found",
+  PRODUCT: "/product/*",
 };
