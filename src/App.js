@@ -11,7 +11,6 @@ import { path } from "./utils";
 import Register from "./pages/register/Register";
 import Login from "./pages/login/Login";
 import Layout from "./layout/Layout/Layout";
-
 function App() {
   return (
     <div>

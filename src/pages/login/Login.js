@@ -52,8 +52,6 @@ function Login() {
       if (res && res.errCode === 0) {
         dispatch(logIn(res?.user));
         dispatch(updateFavourites(res?.user?.favourites));
-        let cartId = await handleCreatCart({ userId: res?.user?.id });
-        dispatch(updateCartId(cartId?.data));
         toast.success("Đăng nhập thành công");
       }
       navigate("/");
