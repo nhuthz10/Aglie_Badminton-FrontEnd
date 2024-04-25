@@ -8,25 +8,18 @@ import ProductRoutes from "./router/ProductRoutes";
 import AdminRoutes from "./router/AdminRoutes";
 import AdminLayout from "../src/layouts/adminLayout/AdminLayout";
 import { path } from "./utils";
+import Register from "./pages/register/Register";
 import Login from "./pages/login/Login";
-import AdminLayout from "./layout/adminLayout/AdminLayout";
-import AdminRoutes from "./components/adminRoutes/AdminRoutes";
-
+import Layout from "./layout/Layout/Layout";
 function App() {
   return (
     <div>
       <Routes>
-        <Route
-          path={path.ADMIN}
-          element={
-            <AdminLayout>
-              <AdminRoutes />
-            </AdminLayout>
-          }
-        />
         <Route path={path.HOME} element={<Home />} />
         <Route path={path.NOT_FOUND} element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
+        <Route path={path.LOGIN} element={<Login />} />
+        <Route path={path.REGISTER} element={<Register />} />
       </Routes>
       <ToastContainer
         position="top-right"

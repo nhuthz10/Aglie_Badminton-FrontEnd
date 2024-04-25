@@ -2,8 +2,15 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { logIn, updateFavourites } from "../../redux-toolkit/userSlice";
-import { handleLoginService } from "../../services/userService";
+import {
+  logIn,
+  updateFavourites,
+  updateCartId,
+} from "../../redux-toolkit/userSlice";
+import {
+  handleLoginService,
+  handleCreatCart,
+} from "../../services/userService";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
