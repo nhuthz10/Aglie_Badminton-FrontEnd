@@ -2,11 +2,18 @@ import { Route, Routes } from "react-router-dom";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Home from "./pages/Home/Home";
-import NotFound from "./pages/NotFound/NotFound";
-import ProductRoutes from "./router/ProductRoutes";
-import AdminRoutes from "./router/AdminRoutes";
-import AdminLayout from "../src/layouts/adminLayout/AdminLayout";
+
+import UserLayout from "./layout/userLayout/UserLayout";
+import Home from "./pages/home/Home";
+import ProductRoutes from "../src/routes/productRoutes/ProductRoutes";
+import UserRoutes from "../src/routes/userRoutes/UserRoutes";
+import Login from "./pages/login/Login";
+import Register from "./pages/register/Register";
+import Error from "./pages/error/Error";
+import ForgotPassword from "./pages/forgotPassword/ForgotPassword";
+import AdminLayout from "./layout/adminLayout/AdminLayout";
+import AdminRoutes from "../src/routes/adminRoutes/AdminRoutes";
+import ChangePassword from "./pages/changePassword/ChangePassword";
 import { path } from "./utils";
 
 function App() {
@@ -21,10 +28,29 @@ function App() {
             </AdminLayout>
           }
         />
-        <Route path={path.HOME} element={<Home />} />
-        <Route path={path.PRODUCT} element={<ProductRoutes />} />
-        <Route path={path.NOT_FOUND} element={<NotFound />} />
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path={path.HOME}
+          element={
+            <UserLayout>
+              <Home />
+            </UserLayout>
+          }
+        />
+        <Route
+          path={path.PRODUCT}
+          element={
+            <UserLayout>
+              <ProductRoutes />
+            </UserLayout>
+          }
+        />
+        <Route path={path.USER} element={<UserRoutes />} />
+        <Route path={path.REGISTER} element={<Register />} />
+        <Route path={path.LOGIN} element={<Login />} />
+        <Route path={path.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        <Route path={path.CHANGE_PASSWORD} element={<ChangePassword />} />
+        <Route path={path.NOT_FOUND} element={<Error />} />
+        <Route path="*" element={<Error />} />
       </Routes>
       <ToastContainer
         position="top-right"

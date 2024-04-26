@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPencil,
+  faSquarePlus,
+  faCircleXmark,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
+
 import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import "./gridData.scss";
@@ -13,18 +20,14 @@ import {
   handleChangePage,
   handleResetPagination,
 } from "../../redux-toolkit/paginationSlice";
+import { handleChangeSearchProductAdmin } from "../../redux-toolkit/adminSlice";
+import { toast } from "react-toastify";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "decimal",
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
-
-const formatterDate = (date) => {
-  const dateObject = new Date(date);
-  const formattedTime = dayjs(dateObject).format("DD/MM/YYYY");
-  return formattedTime;
-};
 
 function GridData({
   gridType,
@@ -34,27 +37,66 @@ function GridData({
   getRoleString,
 }) {
   const [PaginationData, setPaginationData] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const rolesData = useSelector((state) => state.admin.allRole);
+  const brandData = useSelector((state) => state.admin.allBrand?.data);
+  const productTypeData = useSelector(
+    (state) => state.admin.allProductType?.data
+  );
+  const sizeData = useSelector((state) => state.admin.allSize?.data);
   const productData = useSelector((state) => state.admin.allProduct?.data);
+  const productSizeData = useSelector(
+    (state) => state.admin.allProductSize?.data
+  );
   const page = useSelector((state) => state.pagination.page);
   const navigate = useNavigate();
 
-  const { setValue } = useForm();
+  const {
+    handleSubmit,
+    register,
+    control,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm();
 
+  const inputRef = useRef();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (gridType === "product") {
-      setPaginationData(productData);
-    }
-  }, [gridType, productData]);
+  const handleSearchClear = () => {
+    setSearchText("");
+    inputRef.current.focus();
+  };
+  const handleClickSearch = () => {
+    dispatch(handleChangePage(1));
+    dispatch(handleResetPagination(true));
+    dispatch(handleChangeSearchProductAdmin(searchText.trim()));
+  };
+
+  const handleSearchText = (e) => {
+    setSearchText(e.target.value);
+  };
 
   useEffect(() => {
-    const firstDayOfMonth = dayjs().startOf("month").toDate();
-    const lastDayOfMonth = dayjs().endOf("month").toDate();
-    setValue("timeStart", dayjs(new Date(firstDayOfMonth)));
-    setValue("timeEnd", dayjs(new Date(lastDayOfMonth)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (gridType === "product-brand") {
+      setPaginationData(brandData);
+    } else if (gridType === "product-type") {
+      setPaginationData(productTypeData);
+    } else if (gridType === "product-size") {
+      setPaginationData(sizeData);
+    } else if (gridType === "product") {
+      setPaginationData(productData);
+    } else if (gridType === "productSize") {
+      setPaginationData(productSizeData);
+    }
+  }, [
+    brandData,
+    gridType,
+    productData,
+    productSizeData,
+    productTypeData,
+    sizeData,
+  ]);
 
   const handleClickSizeProduct = (item) => {
     dispatch(handleChangePage(1));
@@ -77,7 +119,49 @@ function GridData({
           {headerString}
         </h1>
       </div>
-      <div className="GridData-Icon"></div>
+      <div className="GridData-Icon">
+        {gridType === "product" ? (
+          <div className="search-product-admin">
+            <div className="search">
+              <input
+                ref={inputRef}
+                className="searchInput"
+                type="text"
+                onChange={handleSearchText}
+                value={searchText}
+                placeholder="Tìm kiếm..."
+              ></input>
+
+              {searchText.length > 0 && (
+                <button className="searchClear" onClick={handleSearchClear}>
+                  <FontAwesomeIcon icon={faCircleXmark} />
+                </button>
+              )}
+
+              <span
+                style={{ border: "1px solid #ddd9d9", height: "65%" }}
+              ></span>
+              <div className="searchBtn" onClick={handleClickSearch}>
+                <FontAwesomeIcon
+                  className="searchIcon"
+                  icon={faMagnifyingGlass}
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        <Link
+          to={path.POST_ADMIN}
+          state={{
+            rolesData,
+            productTypeData,
+            brandData,
+          }}
+        >
+          <FontAwesomeIcon icon={faSquarePlus} size="4x" color="#022E6C" />
+        </Link>
+      </div>
       <div style={{ minHeight: 550 }}>
         <table>
           <tbody>
@@ -162,50 +246,6 @@ function GridData({
                             : item[column.key]}
                         </td>
                       );
-                    } else if (gridType === "voucher") {
-                      return (
-                        <td key={columnIndex}>
-                          {column.key === "timeStart"
-                            ? dayjs(+item[column.key]).format("DD/MM/YYYY")
-                            : column.key === "timeEnd"
-                            ? dayjs(+item[column.key]).format("DD/MM/YYYY")
-                            : column.key === "voucherPrice"
-                            ? currencyFormatter.format(item[column.key]) + " đ"
-                            : column.label === "STT"
-                            ? (page - 1) * LIMIT + index + 1
-                            : item[column.key]}
-                        </td>
-                      );
-                    } else if (gridType === "order-admin") {
-                      return (
-                        <td key={columnIndex}>
-                          {column.key === "createdAt"
-                            ? formatterDate(item[column.key])
-                            : column.key === "totalPrice"
-                            ? currencyFormatter.format(item[column.key]) + " đ"
-                            : column.label === "STT"
-                            ? (page - 1) * LIMIT + index + 1
-                            : item[column.key]}
-                        </td>
-                      );
-                    } else if (gridType === "report-admin") {
-                      return (
-                        <td key={columnIndex}>
-                          {column.key === "time"
-                            ? formatterDate(item[column.key])
-                            : column.key === "price"
-                            ? currencyFormatter.format(item[column.key]) + " đ"
-                            : column.key === "discount"
-                            ? currencyFormatter.format(
-                                (item["price"] * item[column.key]) / 100
-                              ) + " đ"
-                            : column.key === "totalPrice"
-                            ? currencyFormatter.format(item[column.key]) + " đ"
-                            : column.label === "STT"
-                            ? (page - 1) * LIMIT + index + 1
-                            : item[column.key]}
-                        </td>
-                      );
                     } else {
                       return (
                         <td key={columnIndex}>
@@ -216,52 +256,53 @@ function GridData({
                       );
                     }
                   })}
-                  {gridType === "order-admin" ? (
-                    <td>
-                      <Link to={item.orderId} className="more">
-                        Xem chi tiết
-                      </Link>
-                    </td>
-                  ) : gridType === "report-admin" ? null : (
-                    <td>
-                      <div
+                  <td>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "20px",
+                      }}
+                    >
+                      {gridType === "product" && (
+                        <div
+                          onClick={() => handleClickSizeProduct(item)}
+                          style={{
+                            width: "50px",
+                            height: "40px",
+                            lineHeight: "40px",
+                            background: "#09ce09",
+                            borderRadius: 10,
+                            fontWeight: "600",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Size
+                        </div>
+                      )}
+                      <Link
+                        to={path.PUT_ADMIN}
+                        state={{
+                          data: item,
+                          rolesData,
+                          productTypeData,
+                          brandData,
+                        }}
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "20px",
+                          width: "26px",
+                          height: "40px",
                         }}
                       >
-                        {gridType === "product" && (
-                          <div
-                            onClick={() => handleClickSizeProduct(item)}
-                            style={{
-                              width: "50px",
-                              height: "40px",
-                              lineHeight: "40px",
-                              background: "#09ce09",
-                              borderRadius: 10,
-                              fontWeight: "600",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Size
-                          </div>
-                        )}
-                        <Link
-                          to={path.PUT_ADMIN}
-                          state={{
-                            data: item,
-                          }}
-                          style={{
-                            width: "26px",
-                            height: "40px",
-                          }}
-                        ></Link>
-                        <ModalDelete handleDelete={() => handleDelete(item)} />
-                      </div>
-                    </td>
-                  )}
+                        <FontAwesomeIcon
+                          icon={faPencil}
+                          style={{ height: "100%", width: "100%" }}
+                          color="#1976d2"
+                        />
+                      </Link>
+                      <ModalDelete handleDelete={() => handleDelete(item)} />
+                    </div>
+                  </td>
                 </tr>
               ))}
           </tbody>

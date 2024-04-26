@@ -4,11 +4,11 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
 import Tippy from "@tippyjs/react/headless";
 
-import "./AdminHeader.scss";
+import "./adminHeader.scss";
 import logo from "../../assets/logo.png";
 import avt from "../../assets/default-avatar.png";
 import { path } from "../../utils";
-import UserMenu from "../../components/userMenu";
+import UserMenu from "../userMenu";
 import { USER_MENU } from "../../utils/menu";
 import { logOut } from "../../redux-toolkit/userSlice";
 
