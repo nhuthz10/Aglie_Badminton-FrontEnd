@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   handleChangePage,
   handleResetPagination,
 } from "../../redux-toolkit/paginationSlice";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -14,7 +14,7 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-import "./AdminSidebar.scss";
+import "./adminSidebar.scss";
 import { path } from "../../utils";
 
 const MENU = [
@@ -107,6 +107,19 @@ function AdminSidebar() {
   const [selectedProductItem, setSelectedProductItem] = useState(false);
   const [selectedOrderItem, setSelectedOrderItem] = useState(false);
 
+  // useEffect(() => {
+  //   const crumb = crumbs.find(
+  //     (item) =>
+  //       item === "product" ||
+  //       item === "product-type" ||
+  //       item === "product-size" ||
+  //       item === "product-brand"
+  //   );
+  //   if (crumb) {
+  //     setSelectedProductItem(true);
+  //   }
+  // }, [crumbs]);
+
   const handleClickMenuItem = (id, path) => {
     dispatch(handleChangePage(1));
     dispatch(handleResetPagination(true));
@@ -163,6 +176,7 @@ function AdminSidebar() {
                 ? item.children.map((subItem) => {
                     return (
                       <div
+                        // to={subItem.path}
                         key={subItem.id}
                         className={`sub-menu-item-container ${
                           selectedItem === subItem.id ? "selected" : ""
