@@ -7,8 +7,6 @@ import Rating from "@mui/material/Rating";
 import { useSelector, useDispatch } from "react-redux";
 import Grid from "@mui/material/Grid";
 import Slider from "@mui/material/Slider";
-import FavoriteBorderTwoToneIcon from "@mui/icons-material/FavoriteBorderTwoTone";
-import FavoriteTwoToneIcon from "@mui/icons-material/FavoriteTwoTone";
 import { useDebounce } from "../../utils/commonUtils";
 import styles from "../product/product.module.scss";
 import PaginatedItems from "../../components/Pagination/Pagination";
@@ -16,15 +14,8 @@ import {
   handleFilterProduct,
   handleSortProduct,
 } from "../../redux-toolkit/productSlice";
-import {
-  handleCreateFavourite,
-  handleDeleteFavourite,
-  handleGetAllFavourite,
-} from "../../services/userService";
 import { sortBy } from "../../utils/index";
 import noProduct from "../../assets/noProduct.png";
-import { toast } from "react-toastify";
-import { updateFavourites } from "../../redux-toolkit/userSlice";
 import {
   handleChangePage,
   handleResetPagination,
@@ -48,8 +39,6 @@ const Product = () => {
   const [paginationData, setPaginationData] = useState([]);
   const brands = useSelector((state) => state.admin.allBrand.data);
   const isLoading = useSelector((state) => state.product.isLoading);
-  const userId = useSelector((state) => state.user.userInfo?.id);
-  const favourites = useSelector((state) => state.user.favourites);
 
   const debounceBrands = useDebounce(checkBrands, 500);
   const debouncePrice = useDebounce(priceValue, 500);
@@ -84,50 +73,8 @@ const Product = () => {
   };
 
   useEffect(() => {
-    if (favourites && favourites?.length > 0) {
-      let newPaginationData = productPagination?.map((product) => {
-        let newProduct = { ...product };
-        newProduct.favourite = favourites?.includes(product.productId);
-        return newProduct;
-      });
-      setPaginationData(newPaginationData);
-    } else {
-      setPaginationData(productPagination);
-    }
-  }, [favourites, productPagination]);
-
-  const handleClickLike = async (productId, status) => {
-    if (userId) {
-      try {
-        if (status === "like") {
-          let res = await handleDeleteFavourite(userId, productId);
-          if (res && res.errCode === 0) {
-            let ress = await handleGetAllFavourite(userId);
-            dispatch(updateFavourites(ress?.data));
-          } else {
-            toast.error(res?.message);
-          }
-        }
-        if (status === "noLike") {
-          let res = await handleCreateFavourite({
-            productId: productId,
-            userId: userId,
-          });
-          if (res && res.errCode === 0) {
-            let ress = await handleGetAllFavourite(userId);
-            dispatch(updateFavourites(ress?.data));
-          } else {
-            toast.error(res?.message);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error(error?.response?.data?.message);
-      }
-    } else {
-      toast.error("Vui lòng đăng nhập");
-    }
-  };
+    setPaginationData(productPagination);
+  }, [productPagination]);
 
   return (
     <div className={styles.page}>
@@ -135,7 +82,9 @@ const Product = () => {
         <div className={styles.sideBar_element}>
           <h1 className={styles.sideBar_element_title}>Thương hiệu</h1>
           <div className={styles.sideBar_line}></div>
-          {brands && brands.length > 0 && brands.map((item, index) => {
+          {brands &&
+            brands.length > 0 &&
+            brands.map((item, index) => {
               return (
                 <div className={styles.sideBar_element_content} key={index}>
                   <p>{item.brandName}</p>
@@ -209,7 +158,7 @@ const Product = () => {
         <div className={styles.mainContent}>
           {paginationData?.length === 0 && !isLoading ? (
             <div className={styles.noProduct}>
-              <h1>Không có sản phẩm nào </h1>
+              <h1>Không có sản phẩm nào</h1>
               <img src={noProduct} alt=":((" />
             </div>
           ) : (
@@ -227,7 +176,7 @@ const Product = () => {
                         style={{
                           objectFit:
                             item.productTypeData?.productTypeName ===
-                            "Áo cầu lông "
+                            "Áo cầu lông"
                               ? "cover"
                               : "contain",
                         }}
@@ -238,24 +187,7 @@ const Product = () => {
                         onClick={(e) => {
                           e.preventDefault();
                         }}
-                      >
-                        {item.favourite ? (
-                          <FavoriteTwoToneIcon
-                            onClick={() => {
-                              handleClickLike(item.productId, "like");
-                            }}
-                            className={styles.icon}
-                            style={{ color: "red" }}
-                          />
-                        ) : (
-                          <FavoriteBorderTwoToneIcon
-                            className={styles.icon}
-                            onClick={() => {
-                              handleClickLike(item.productId, "noLike");
-                            }}
-                          />
-                        )}
-                      </button>
+                      ></button>
                       <div className={styles.productInfo}>
                         <p className={styles.productName}>{item.name}</p>
                         <div className={styles.productRating}>
@@ -275,7 +207,7 @@ const Product = () => {
                             style={{
                               color:
                                 item.discount !== 0
-                                  ? "rgba(0,0,0,0.54)"
+                                  ? "rgba(0,0,0,.54)"
                                   : "var(--primary-color)",
                               textDecoration:
                                 item.discount !== 0 ? "line-through" : "",

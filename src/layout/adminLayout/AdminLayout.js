@@ -1,6 +1,6 @@
 import React from "react";
-import AdminHeader from "../adminHeader/AdminHeader";
-import AdminSidebar from "../adminSidebar/AdminSidebar";
+import AdminHeader from "../../components/adminHeader/AdminHeader";
+import AdminSidebar from "../../components/adminSidebar/AdminSidebar";
 import Loading from "../../components/Loading/Loading";
 import { useSelector } from "react-redux";
 import "./adminLayout.scss";
