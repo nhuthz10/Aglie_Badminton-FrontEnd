@@ -1,56 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
-import { handleChangePasswordService } from "../../services/userService";
-import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
 import "./ChangePassword.scss";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const ChangePassword = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const navigate = useNavigate();
-  let { userEmail } = useParams();
-
-  let handleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  let handleSendOpt = async (data) => {
-    setIsLoading(true);
-    try {
-      let res = await handleChangePasswordService({
-        email: userEmail,
-        otpCode: data.otp,
-        password: data.password,
-      });
-      if (res && res.errCode === 0) {
-        toast.success("Đổi mật khẩu thành công");
-        navigate(`/login`);
-      }
-    } catch (err) {
-      if (err?.response?.data?.errCode === 2) {
-        toast.error("Mã OTP của bạn không chính xác");
-      } else if (err?.response?.data?.errCode === 3) {
-        toast.error("Mã OTP của bạn đã hết hạn");
-      } else if (err?.response?.data?.errCode === 4) {
-        toast.error("Người dùng không tồn tại");
-      } else {
-        toast.error(err?.response?.data?.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Loading loading={isLoading}>
       <div className="change-password-container">

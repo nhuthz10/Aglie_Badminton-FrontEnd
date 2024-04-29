@@ -1,41 +1,9 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
-import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { handleSendOptService } from "../../services/userService";
-import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
 import "./ForgotPassword.scss";
 
 const ForgotPassword = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-  const navigate = useNavigate();
-
-  let handleSendOpt = async (data) => {
-    setIsLoading(true);
-    try {
-      let res = await handleSendOptService(data.email);
-      if (res && res.errCode === 0) {
-        toast.success("Mã OPT đã được gửi thành công");
-        navigate(`/change-password/${data.email}`);
-      }
-    } catch (err) {
-      if (err?.response?.data?.errCode === 2) {
-        toast.error("Email của bạn không tồn tại");
-      } else {
-        toast.error(err?.response?.data?.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Loading loading={isLoading}>
       <div className="forgot-password-container">
