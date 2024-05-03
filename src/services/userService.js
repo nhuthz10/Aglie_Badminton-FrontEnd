@@ -78,3 +78,5 @@ export {
   handleGetAllFavourite,
   handleCreatCart,
 };
+
+// the below code fragment can be found in:
