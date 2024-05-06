@@ -4,7 +4,7 @@ import { useSelector } from "react-redux/es/hooks/useSelector";
 import { useDispatch } from "react-redux";
 import Tippy from "@tippyjs/react/headless";
 
-import "./adminHeader.scss";
+import "./AdminHeader.scss";
 import logo from "../../assets/logo.png";
 import avt from "../../assets/default-avatar.png";
 import { path } from "../../utils";

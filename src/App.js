@@ -4,7 +4,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import UserLayout from "./layout/userLayout/UserLayout";
-import Home from "./pages/home/Home";
+import Home from "./pages/Home/Home";
 import ProductRoutes from "../src/routes/productRoutes/ProductRoutes";
 import UserRoutes from "../src/routes/userRoutes/UserRoutes";
 import Login from "./pages/login/Login";
