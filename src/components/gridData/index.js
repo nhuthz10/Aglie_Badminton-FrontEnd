@@ -38,6 +38,7 @@ function GridData({
 }) {
   const [PaginationData, setPaginationData] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const userData = useSelector((state) => state.admin.allUser?.data);
   const rolesData = useSelector((state) => state.admin.allRole);
   const brandData = useSelector((state) => state.admin.allBrand?.data);
   const productTypeData = useSelector(
@@ -78,7 +79,9 @@ function GridData({
   };
 
   useEffect(() => {
-    if (gridType === "product-brand") {
+    if (gridType === "user") {
+      setPaginationData(userData);
+    } else if (gridType === "product-brand") {
       setPaginationData(brandData);
     } else if (gridType === "product-type") {
       setPaginationData(productTypeData);
