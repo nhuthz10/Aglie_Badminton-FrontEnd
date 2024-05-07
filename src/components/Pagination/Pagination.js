@@ -4,8 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import {
-  fetchAllUserRedux,
-  fetchAllRoleRedux,
   fetchAllBrandRedux,
   fetchAllProductTypeRedux,
   fetchAllSizeRedux,
@@ -47,6 +45,19 @@ function PaginatedItems({ type, productTypeId }) {
     (state) => state.search.allResultSearch.totalPage
   );
   const totalVoucher = useSelector((state) => state.admin.allVoucher.totalPage);
+  const totalOrder = useSelector((state) => state.order.allOrder.totalPage);
+  const totalOrderAdmin = useSelector(
+    (state) => state.admin.allOrder.totalPage
+  );
+  const totalProductSaleOff = useSelector(
+    (state) => state.product.allProductSaleOff.totalPage
+  );
+  const totalProductOrder = useSelector(
+    (state) => state.admin.allProductOrder.totalPage
+  );
+  const totalProductFavourite = useSelector(
+    (state) => state.product.allProductFavourite.totalPage
+  );
   const productData = useSelector((state) => state.admin.productData);
   const filter = useSelector((state) => state.product.filter);
   const sort = useSelector((state) => state.product.sort);
@@ -67,16 +78,7 @@ function PaginatedItems({ type, productTypeId }) {
   );
 
   useEffect(() => {
-    if (type === "user") {
-      let getAllDataUser = async () => {
-        dispatch(loadingAdmin(true));
-        await dispatch(fetchAllUserRedux({ limit: LIMIT, page: pageCount }));
-        await dispatch(fetchAllRoleRedux());
-        dispatch(handleResetPagination(false));
-        dispatch(loadingAdmin(false));
-      };
-      getAllDataUser();
-    } else if (type === "product-brand") {
+    if (type === "product-brand") {
       let getAllDataBrand = async () => {
         dispatch(loadingAdmin(true));
         await dispatch(
@@ -205,6 +207,78 @@ function PaginatedItems({ type, productTypeId }) {
         dispatch(handleResetPagination(false));
       };
       getAllDataVoucher();
+    } else if (type === "order") {
+      let getAllOrder = async () => {
+        dispatch(loadingProduct(true));
+        await dispatch(
+          fetchAllOrderRedux({
+            userId: userId,
+            status: orderStatus,
+            limit: LIMIT_ORDER,
+            page: pageCount,
+          })
+        );
+        dispatch(loadingProduct(false));
+        dispatch(handleResetPagination(false));
+        dispatch(handleResetPagination(false));
+      };
+      getAllOrder();
+    } else if (type === "order-admin") {
+      let getAllOrder = async () => {
+        dispatch(loadingAdmin(true));
+        await dispatch(
+          fetchAllOrderAdminRedux({
+            limit: LIMIT,
+            page: pageCount,
+            status: orderStatus,
+          })
+        );
+        dispatch(handleResetPagination(false));
+        dispatch(loadingAdmin(false));
+      };
+      getAllOrder();
+    } else if (type === "sale-off-product") {
+      let getAllDataProduct = async () => {
+        dispatch(loadingProduct(true));
+        await dispatch(
+          fetchAllProductSaleOffRedux({
+            limit: LIMIT_SEARCH,
+            page: pageCount,
+          })
+        );
+        dispatch(loadingProduct(false));
+        dispatch(handleResetPagination(false));
+      };
+      getAllDataProduct();
+    } else if (type === "report-admin") {
+      let getAllProduct = async () => {
+        dispatch(loadingAdmin(true));
+        await dispatch(
+          fetchAllProductOrderRedux({
+            limit: LIMIT,
+            page: pageCount,
+            timeStart: timeReport.timeStart,
+            timeEnd: timeReport.timeEnd,
+          })
+        );
+        dispatch(handleResetPagination(false));
+        dispatch(loadingAdmin(false));
+      };
+      getAllProduct();
+    } else if (type === "favourite-product") {
+      let getAllDataProduct = async () => {
+        dispatch(loadingProduct(true));
+        await dispatch(
+          fetchAllProductFavouriteRedux({
+            userId: userId,
+            limit: LIMIT_SEARCH,
+            page: pageCount,
+          })
+        );
+        dispatch(loadingProduct(false));
+        dispatch(handleResetPagination(false));
+      };
+      getAllDataProduct();
     }
   }, [
     type,
@@ -238,9 +312,22 @@ function PaginatedItems({ type, productTypeId }) {
       setTotalPage(totalProductSearch);
     } else if (type === "voucher") {
       setTotalPage(totalVoucher);
+    } else if (type === "order") {
+      setTotalPage(totalOrder);
+    } else if (type === "order-admin") {
+      setTotalPage(totalOrderAdmin);
+    } else if (type === "sale-off-product") {
+      setTotalPage(totalProductSaleOff);
+    } else if (type === "report-admin") {
+      setTotalPage(totalProductOrder);
+    } else if (type === "favourite-product") {
+      setTotalPage(totalProductFavourite);
     }
   }, [
-    totalVoucher,
+    totalOrder,
+    totalProductFavourite,
+    totalProductOrder,
+    totalOrderAdmin,
     totalPageBrand,
     totalPageProductType,
     totalPageSize,
