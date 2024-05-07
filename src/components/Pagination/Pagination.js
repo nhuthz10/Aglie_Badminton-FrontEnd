@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import {
+  fetchAllUserRedux,
+  fetchAllRoleRedux,
   fetchAllBrandRedux,
   fetchAllProductTypeRedux,
   fetchAllSizeRedux,
@@ -63,7 +65,16 @@ function PaginatedItems({ type, productTypeId }) {
   );
 
   useEffect(() => {
-    if (type === "product-brand") {
+    if (type === "user") {
+      let getAllDataUser = async () => {
+        dispatch(loadingAdmin(true));
+        await dispatch(fetchAllUserRedux({ limit: LIMIT, page: pageCount }));
+        await dispatch(fetchAllRoleRedux());
+        dispatch(handleResetPagination(false));
+        dispatch(loadingAdmin(false));
+      };
+      getAllDataUser();
+    } else if (type === "product-brand") {
       let getAllDataBrand = async () => {
         dispatch(loadingAdmin(true));
         await dispatch(
