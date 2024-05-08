@@ -14,7 +14,7 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-import "./adminSidebar.scss";
+import "./AdminSidebar.scss";
 import { path } from "../../utils";
 
 const MENU = [

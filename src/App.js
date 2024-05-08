@@ -1,18 +1,18 @@
 import { Route, Routes } from "react-router-dom";
-import React from "react";
+import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import UserLayout from "./layout/userLayout/UserLayout";
-import Home from "./pages/home/Home";
-import ProductRoutes from "../src/routes/productRoutes/ProductRoutes";
-import UserRoutes from "../src/routes/userRoutes/UserRoutes";
+import Layout from "./layout/userLayout/UserLayout"
+import Home from "./pages/Home/Home";
+import ProductRoutes from "./routes/productRoutes/ProductRoutes";
+import UserRoutes from "./routes/userRoutes/UserRoutes";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Error from "./pages/error/Error";
 import ForgotPassword from "./pages/forgotPassword/ForgotPassword";
 import AdminLayout from "./layout/adminLayout/AdminLayout";
-import AdminRoutes from "../src/routes/adminRoutes/AdminRoutes";
+import AdminRoutes from "./routes/adminRoutes/AdminRoutes";
 import ChangePassword from "./pages/changePassword/ChangePassword";
 import { path } from "./utils";
 
@@ -31,17 +31,17 @@ function App() {
         <Route
           path={path.HOME}
           element={
-            <UserLayout>
+            <Layout>
               <Home />
-            </UserLayout>
+            </Layout>
           }
         />
         <Route
           path={path.PRODUCT}
           element={
-            <UserLayout>
+            <Layout>
               <ProductRoutes />
-            </UserLayout>
+            </Layout>
           }
         />
         <Route path={path.USER} element={<UserRoutes />} />
