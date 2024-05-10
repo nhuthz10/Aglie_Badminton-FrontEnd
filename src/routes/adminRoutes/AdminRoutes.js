@@ -7,6 +7,7 @@ import UserAdmin from "../../system/userAdmin/userAdmin";
 import SizeAdmin from "../../system/sizeAdmin/sizeAdmin";
 import ProductTypeAdmin from "../../system/productTypeAdmin/productTypeAdmin";
 import BrandAdmin from "../../system/brandAdmin/brandAdmin";
+import UserPost from "../../system/userAdmin/UserPost";
 import ProductAdmin from "../../system/productAdmin/productAdmin";
 import ProductTypePost from "../../system/productTypeAdmin/ProductTypePost";
 import SizePost from "../../system/sizeAdmin/SizePost";
@@ -25,6 +26,14 @@ function AdminRoutes() {
       <Route path={path.PRODUCT_BRAND_ADMIN} element={<BrandAdmin />} />
       <Route path={path.PRODUCT_SIZE_ADMIN} element={<SizeAdmin />} />
       <Route path={path.VOUCHER_ADMIN} element={<VoucherAdmin />} />
+      <Route
+        path={`${path.USER_ADMIN}/${path.POST_ADMIN}`}
+        element={<UserPost />}
+      />
+      <Route
+        path={`${path.USER_ADMIN}/${path.PUT_ADMIN}`}
+        element={<UserPost />}
+      />
       <Route
         path={`${path.PRODUCT_TYPE_ADMIN}/${path.POST_ADMIN}`}
         element={<ProductTypePost />}
