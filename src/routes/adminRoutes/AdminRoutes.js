@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 
 import Error from "../../pages/error/Error";
 import { path } from "../../utils";
+import UserAdmin from "../../system/userAdmin/userAdmin";
 import SizeAdmin from "../../system/sizeAdmin/sizeAdmin";
 import ProductTypeAdmin from "../../system/productTypeAdmin/productTypeAdmin";
 import BrandAdmin from "../../system/brandAdmin/brandAdmin";
@@ -18,6 +19,7 @@ import VoucherAdmin from "../../system/voucherAdmin/VoucherAdmin";
 function AdminRoutes() {
   return (
     <Routes>
+      <Route path={path.USER_ADMIN} element={<UserAdmin />} />
       <Route path={path.PRODUCT_ADMIN} element={<ProductAdmin />} />
       <Route path={path.PRODUCT_TYPE_ADMIN} element={<ProductTypeAdmin />} />
       <Route path={path.PRODUCT_BRAND_ADMIN} element={<BrandAdmin />} />
