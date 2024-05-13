@@ -49,6 +49,7 @@ function GridData({
   const productSizeData = useSelector(
     (state) => state.admin.allProductSize?.data
   );
+  const voucherData = useSelector((state) => state.admin.allVoucher?.data);
   const page = useSelector((state) => state.pagination.page);
   const navigate = useNavigate();
 
@@ -91,7 +92,10 @@ function GridData({
       setPaginationData(productData);
     } else if (gridType === "productSize") {
       setPaginationData(productSizeData);
+    } else if (gridType === "voucher") {
+      setPaginationData(voucherData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     brandData,
     gridType,
@@ -99,6 +103,7 @@ function GridData({
     productSizeData,
     productTypeData,
     sizeData,
+    voucherData,
   ]);
 
   const handleClickSizeProduct = (item) => {
@@ -244,6 +249,20 @@ function GridData({
                             ? item[column.key]?.name
                             : column.key === "SizeData"
                             ? item[column.key]?.sizeName
+                            : column.label === "STT"
+                            ? (page - 1) * LIMIT + index + 1
+                            : item[column.key]}
+                        </td>
+                      );
+                    } else if (gridType === "voucher") {
+                      return (
+                        <td key={columnIndex}>
+                          {column.key === "timeStart"
+                            ? dayjs(+item[column.key]).format("DD/MM/YYYY")
+                            : column.key === "timeEnd"
+                            ? dayjs(+item[column.key]).format("DD/MM/YYYY")
+                            : column.key === "voucherPrice"
+                            ? currencyFormatter.format(item[column.key]) + " đ"
                             : column.label === "STT"
                             ? (page - 1) * LIMIT + index + 1
                             : item[column.key]}
