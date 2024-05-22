@@ -9,6 +9,7 @@ import {
   fetchAllBrandRedux,
   fetchAllProductTypeRedux,
   fetchAllSizeRedux,
+  fetchAllVoucherRedux,
   fetchAllProductRedux,
   fetchAllProductSizeRedux,
   fetchAllProductSizeOfTheProductTypeRedux,
@@ -45,6 +46,7 @@ function PaginatedItems({ type, productTypeId }) {
   const totalProductSearch = useSelector(
     (state) => state.search.allResultSearch.totalPage
   );
+  const totalVoucher = useSelector((state) => state.admin.allVoucher.totalPage);
   const productData = useSelector((state) => state.admin.productData);
   const filter = useSelector((state) => state.product.filter);
   const sort = useSelector((state) => state.product.sort);
@@ -189,6 +191,20 @@ function PaginatedItems({ type, productTypeId }) {
         dispatch(handleResetPagination(false));
       };
       getAllDataSearch();
+    } else if (type === "voucher") {
+      let getAllDataVoucher = async () => {
+        dispatch(loadingAdmin(true));
+        await dispatch(
+          fetchAllVoucherRedux({
+            limit: LIMIT,
+            page: pageCount,
+            pagination: true,
+          })
+        );
+        dispatch(loadingAdmin(false));
+        dispatch(handleResetPagination(false));
+      };
+      getAllDataVoucher();
     }
   }, [
     type,
@@ -220,8 +236,11 @@ function PaginatedItems({ type, productTypeId }) {
       setTotalPage(totalProductOfTheProductType);
     } else if (type === "search-product") {
       setTotalPage(totalProductSearch);
+    } else if (type === "voucher") {
+      setTotalPage(totalVoucher);
     }
   }, [
+    totalVoucher,
     totalPageBrand,
     totalPageProductType,
     totalPageSize,
