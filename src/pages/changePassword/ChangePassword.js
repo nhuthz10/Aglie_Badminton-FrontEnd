@@ -112,5 +112,4 @@ const ChangePassword = () => {
     </Loading>
   );
 };
-
 export default ChangePassword;
