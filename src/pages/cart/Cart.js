@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
 import AddTwoToneIcon from "@mui/icons-material/AddTwoTone";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { PayPalButton } from "react-paypal-button-v2";
 import TextField from "@mui/material/TextField";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -15,10 +16,14 @@ import {
   handleGetAllProductCart,
   handleUpdateProductCartService,
   handleDeleteProductCartService,
+  handleCreateNewOrderService,
+  handlePaymentByVnPayService,
 } from "../../services/productService";
 import { handleGetInforUserService } from "../../services/userService";
+import { handleGetPaypalClientId } from "../../services/productService";
 import { useSelector } from "react-redux";
 import styles from "./Cart.module.scss";
+import Voucher from "../../components/voucher/Voucher";
 import { useDebounce } from "../../utils/commonUtils";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +54,8 @@ function Cart() {
 
   let getInforUser = async () => {
     try {
-      let res = await handleGetInforUserService(userId);
+      let access_token = localStorage.getItem("access_token");
+      let res = await handleGetInforUserService(userId, access_token);
       if (res && res.errCode === 0) {
         setUserInfo({
           name: res?.data?.userName,
@@ -83,6 +89,68 @@ function Cart() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentProductDebounce]);
+
+  useEffect(() => {
+    const paymentElement = paymentRef.current;
+    if (!paymentElement) {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            handleIntersection(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    paymentElement.childNodes.forEach((child) => {
+      if (child.nodeType === 1) {
+        observer.observe(child);
+      }
+    });
+    return () => {
+      observer.disconnect();
+    };
+  }, [paymentValue]);
+
+  const handleIntersection = (target) => {
+    var elements = document.querySelectorAll(".paypal-buttons");
+    var elementToKeep = elements[0];
+
+    elements.forEach(function (element) {
+      if (elementToKeep && element !== elementToKeep) {
+        element.style.display = "none";
+      }
+    });
+  };
+
+  const handleAddScriptPaypal = async () => {
+    try {
+      let res = await handleGetPaypalClientId();
+      if (res && res.errCode === 0) {
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://www.paypal.com/sdk/js?client-id=${res?.data}`;
+        script.async = true;
+        script.onload = () => {
+          setIsScript(true);
+        };
+        document.body.appendChild(script);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (!window.paypal) {
+      handleAddScriptPaypal();
+    } else {
+      setIsScript(true);
+    }
+  }, []);
 
   const updateProductCart = async (data) => {
     try {
@@ -216,10 +284,73 @@ function Cart() {
       toast.error("Vui lòng cập nhật địa chỉ để tiếp tục mua hàng");
     } else {
       if (allProduct?.length > 0) {
-        console.log("Đặt hàng thành công");
+        if (paymentValue === "COD") {
+          try {
+            let res = await handleCreateNewOrderService({
+              cartId: cartId,
+              userId: userId,
+              voucherId: voucherId,
+              payment: paymentValue,
+              totalPrice: pricePaypal,
+              deliveryAddress: userInfo.address,
+              status: 1,
+            });
+            if (res && res.errCode === 0) {
+              getAllProductCart();
+              toast.success("Đặt hàng thành công");
+              navigation(`/user/orders/${res?.orderId}`);
+            }
+          } catch (error) {
+            console.log(error);
+            toast.error(error?.response?.data?.message);
+          }
+        }
+        if (paymentValue === "VNPAY") {
+          try {
+            let res = await handlePaymentByVnPayService({
+              cartId: cartId,
+              userId: userId,
+              voucherId: voucherId,
+              payment: paymentValue,
+              totalPrice: pricePaypal,
+              deliveryAddress: userInfo.address,
+              status: 1,
+            });
+            if (res && res.errCode === 0) {
+              // getAllProductCart();
+              // toast.success("Đặt hàng thành công");
+              window.location.href = res.urlPayment;
+            }
+          } catch (error) {
+            console.log(error);
+            toast.error(error?.response?.data?.message);
+          }
+        }
       } else {
         toast.error("Không có sản phẩm nào để đặt hàng");
       }
+    }
+  };
+
+  const handlePaymentByPaypal = async (data, detail) => {
+    try {
+      let res = await handleCreateNewOrderService({
+        cartId: cartId,
+        userId: userId,
+        voucherId: voucherId,
+        payment: paymentValue,
+        totalPrice: pricePaypal,
+        deliveryAddress: userInfo.address,
+        status: 1,
+      });
+      if (res && res.errCode === 0) {
+        getAllProductCart();
+        toast.success("Đặt hàng thành công");
+        navigation(`/user/orders/${res?.orderId}`);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
     }
   };
 
@@ -336,342 +467,362 @@ function Cart() {
             })}
         </div>
         <div className={styles.order}>
-          <>
-            <div className={styles.orderElementWrapper}>
-              <h1>Thông tin người nhận</h1>
-              <div className={styles.orderElement}>
-                <label htmlFor="name" className={styles.label}>
-                  Họ tên
-                </label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  error={userInfo?.name?.length === 0 ? true : false}
-                  inputProps={{
-                    id: "name",
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  FormHelperTextProps={{
-                    style: {
-                      textAlign: "right",
-                      fontSize: "1.5rem",
-                      fontFamily: "Inter, sans-serif",
-                    },
-                  }}
-                  value={userInfo.name ? userInfo.name : ""}
-                  onChange={handleChangeName}
-                />
+          {!voucherSelect ? (
+            <>
+              <div className={styles.orderElementWrapper}>
+                <h1>Thông tin người nhận</h1>
+                <div className={styles.orderElement}>
+                  <label htmlFor="name" className={styles.label}>
+                    Họ tên
+                  </label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    error={userInfo?.name?.length === 0 ? true : false}
+                    inputProps={{
+                      id: "name",
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    FormHelperTextProps={{
+                      style: {
+                        textAlign: "right",
+                        fontSize: "1.5rem",
+                        fontFamily: "Inter, sans-serif",
+                      },
+                    }}
+                    value={userInfo.name ? userInfo.name : ""}
+                    onChange={handleChangeName}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label htmlFor="phone" className={styles.label}>
+                    Số điện thoại
+                  </label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    error={
+                      userInfo?.phone?.length === 0 || !userInfo?.phone
+                        ? true
+                        : false
+                    }
+                    inputProps={{
+                      id: "phone",
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    FormHelperTextProps={{
+                      style: {
+                        textAlign: "right",
+                        fontSize: "1.5rem",
+                        fontFamily: "Inter, sans-serif",
+                      },
+                    }}
+                    value={userInfo.phone ? userInfo.phone : ""}
+                    onChange={handleChangePhone}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label htmlFor="address" className={styles.label}>
+                    Địa chỉ
+                  </label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    error={
+                      userInfo?.address?.length === 0 || !userInfo?.address
+                        ? true
+                        : false
+                    }
+                    inputProps={{
+                      id: "address",
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    FormHelperTextProps={{
+                      style: {
+                        textAlign: "right",
+                        fontSize: "1.5rem",
+                        fontFamily: "Inter, sans-serif",
+                      },
+                    }}
+                    value={userInfo.address ? userInfo.address : ""}
+                    onChange={handleChangeAddress}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label htmlFor="email" className={styles.label}>
+                    Email
+                  </label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    error={userInfo?.email?.length === 0 ? true : false}
+                    inputProps={{
+                      id: "email",
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    FormHelperTextProps={{
+                      style: {
+                        textAlign: "right",
+                        fontSize: "1.5rem",
+                        fontFamily: "Inter, sans-serif",
+                      },
+                    }}
+                    value={userInfo.email ? userInfo.email : ""}
+                    onChange={handleChangeEmail}
+                  />
+                </div>
               </div>
-              <div className={styles.orderElement}>
-                <label htmlFor="phone" className={styles.label}>
-                  Số điện thoại
-                </label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  error={
-                    userInfo?.phone?.length === 0 || !userInfo?.phone
-                      ? true
-                      : false
-                  }
-                  inputProps={{
-                    id: "phone",
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  FormHelperTextProps={{
-                    style: {
-                      textAlign: "right",
-                      fontSize: "1.5rem",
-                      fontFamily: "Inter, sans-serif",
-                    },
-                  }}
-                  value={userInfo.phone ? userInfo.phone : ""}
-                  onChange={handleChangePhone}
-                />
-              </div>
-              <div className={styles.orderElement}>
-                <label htmlFor="address" className={styles.label}>
-                  Địa chỉ
-                </label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  error={
-                    userInfo?.address?.length === 0 || !userInfo?.address
-                      ? true
-                      : false
-                  }
-                  inputProps={{
-                    id: "address",
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  FormHelperTextProps={{
-                    style: {
-                      textAlign: "right",
-                      fontSize: "1.5rem",
-                      fontFamily: "Inter, sans-serif",
-                    },
-                  }}
-                  value={userInfo.address ? userInfo.address : ""}
-                  onChange={handleChangeAddress}
-                />
-              </div>
-              <div className={styles.orderElement}>
-                <label htmlFor="email" className={styles.label}>
-                  Email
-                </label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  error={userInfo?.email?.length === 0 ? true : false}
-                  inputProps={{
-                    id: "email",
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  FormHelperTextProps={{
-                    style: {
-                      textAlign: "right",
-                      fontSize: "1.5rem",
-                      fontFamily: "Inter, sans-serif",
-                    },
-                  }}
-                  value={userInfo.email ? userInfo.email : ""}
-                  onChange={handleChangeEmail}
-                />
-              </div>
-            </div>
 
-            <div className={styles.line}></div>
+              <div className={styles.line}></div>
 
-            <div className={styles.orderElementWrapper}>
-              <h1>Thông tin đơn hàng</h1>
-              <div className={styles.orderElement}>
-                <label className={styles.label}>Tổng cộng</label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  value={
-                    currentTotalPrice
-                      ? currencyFormatter.format(currentTotalPrice)
-                      : 0
-                  }
-                  inputProps={{
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
+              <div className={styles.orderElementWrapper}>
+                <h1>Thông tin đơn hàng</h1>
+                <div className={styles.orderElement}>
+                  <label className={styles.label}>Tổng cộng</label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    value={
+                      currentTotalPrice
+                        ? currencyFormatter.format(currentTotalPrice)
+                        : 0
+                    }
+                    inputProps={{
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label className={styles.label}>Giảm giá</label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    value={`- ${currencyFormatter.format(voucherPrice)}`}
+                    inputProps={{
+                      style: {
+                        textAlign: "right",
+                        fontSize: "2rem",
+                        color: "red",
+                      },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label className={styles.label}>Phí vận chuyển</label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    value={currencyFormatter.format(30000)}
+                    inputProps={{
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </div>
+                <div className={styles.orderElement}>
+                  <label className={styles.label}>Phải trả</label>
+                  <TextField
+                    className={styles.input}
+                    variant="standard"
+                    value={
+                      pricePaypal ? currencyFormatter.format(pricePaypal) : 0
+                    }
+                    inputProps={{
+                      style: { textAlign: "right", fontSize: "2rem" },
+                    }}
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                  />
+                </div>
               </div>
-              <div className={styles.orderElement}>
-                <label className={styles.label}>Giảm giá</label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  value={`- ${currencyFormatter.format(voucherPrice)}`}
-                  inputProps={{
-                    style: {
-                      textAlign: "right",
-                      fontSize: "2rem",
-                      color: "red",
-                    },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </div>
-              <div className={styles.orderElement}>
-                <label className={styles.label}>Phí vận chuyển</label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  value={currencyFormatter.format(30000)}
-                  inputProps={{
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </div>
-              <div className={styles.orderElement}>
-                <label className={styles.label}>Phải trả</label>
-                <TextField
-                  className={styles.input}
-                  variant="standard"
-                  value={
-                    pricePaypal ? currencyFormatter.format(pricePaypal) : 0
-                  }
-                  inputProps={{
-                    style: { textAlign: "right", fontSize: "2rem" },
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </div>
-            </div>
 
-            <div className={styles.line}></div>
+              <div className={styles.line}></div>
 
-            <div className={styles.orderElementWrapper}>
-              <h1>Phương thức thanh toán</h1>
-              <RadioGroup
-                aria-labelledby="demo-controlled-radio-buttons-group"
-                name="controlled-radio-buttons-group"
-                className={styles.radioGroup}
-                onChange={handleChangePayment}
-                value={paymentValue}
+              <div className={styles.orderElementWrapper}>
+                <h1>Phương thức thanh toán</h1>
+                <RadioGroup
+                  aria-labelledby="demo-controlled-radio-buttons-group"
+                  name="controlled-radio-buttons-group"
+                  className={styles.radioGroup}
+                  onChange={handleChangePayment}
+                  value={paymentValue}
+                >
+                  <FormControlLabel
+                    value="COD"
+                    control={
+                      <Radio
+                        sx={{
+                          "&.Mui-checked": {
+                            color: "var(--primary-color)",
+                          },
+                        }}
+                      />
+                    }
+                    label={
+                      <span className={styles.radioLabel}>
+                        <p>Khi nhận hàng</p>{" "}
+                        <MonetizationOnTwoToneIcon
+                          style={{
+                            fontSize: "3.5rem",
+                            color:
+                              paymentValue === "COD"
+                                ? "var(--primary-color)"
+                                : null,
+                          }}
+                        />
+                      </span>
+                    }
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "2.5rem",
+                      },
+                      width: "30rem",
+                    }}
+                    className={styles.radio}
+                  />
+                  <FormControlLabel
+                    value="VNPAY"
+                    control={
+                      <Radio
+                        sx={{
+                          "&.Mui-checked": {
+                            color: "var(--primary-color)",
+                          },
+                        }}
+                      />
+                    }
+                    label={
+                      <span className={styles.radioLabel}>
+                        <p
+                          style={{
+                            marginRight: "12.3rem",
+                          }}
+                        >
+                          VNPAY
+                        </p>
+                        <PaymentsIcon
+                          style={{
+                            fontSize: "3.5rem",
+                            color:
+                              paymentValue === "VNPAY"
+                                ? "var(--primary-color)"
+                                : null,
+                          }}
+                        />
+                      </span>
+                    }
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "2.5rem",
+                      },
+                      width: "30rem",
+                    }}
+                    className={styles.radio}
+                  />
+                  <FormControlLabel
+                    value="PAYPAL"
+                    control={
+                      <Radio
+                        sx={{
+                          "&.Mui-checked": {
+                            color: "var(--primary-color)",
+                          },
+                        }}
+                      />
+                    }
+                    label={
+                      <span className={styles.radioLabel}>
+                        <p style={{ marginRight: "12.5rem" }}>PayPal</p>
+                        <PaymentTwoToneIcon
+                          style={{
+                            fontSize: "3.5rem",
+                            color:
+                              paymentValue === "PAYPAL"
+                                ? "var(--primary-color)"
+                                : null,
+                          }}
+                        />
+                      </span>
+                    }
+                    sx={{
+                      "& .MuiSvgIcon-root": {
+                        fontSize: "2.5rem",
+                      },
+                      width: "30rem",
+                    }}
+                    className={styles.radio}
+                  />
+                </RadioGroup>
+              </div>
+
+              <div
+                className="payment"
+                ref={paymentRef}
+                style={{ marginTop: "2.5rem" }}
               >
-                <FormControlLabel
-                  value="COD"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "var(--primary-color)",
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <span className={styles.radioLabel}>
-                      <p>Khi nhận hàng</p>{" "}
-                      <MonetizationOnTwoToneIcon
-                        style={{
-                          fontSize: "3.5rem",
-                          color:
-                            paymentValue === "COD"
-                              ? "var(--primary-color)"
-                              : null,
-                        }}
-                      />
-                    </span>
-                  }
-                  sx={{
-                    "& .MuiSvgIcon-root": {
-                      fontSize: "2.5rem",
-                    },
-                    width: "30rem",
-                  }}
-                  className={styles.radio}
-                />
-                <FormControlLabel
-                  value="VNPAY"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "var(--primary-color)",
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <span className={styles.radioLabel}>
-                      <p
-                        style={{
-                          marginRight: "12.3rem",
-                        }}
-                      >
-                        VNPAY
-                      </p>
-                      <PaymentsIcon
-                        style={{
-                          fontSize: "3.5rem",
-                          color:
-                            paymentValue === "VNPAY"
-                              ? "var(--primary-color)"
-                              : null,
-                        }}
-                      />
-                    </span>
-                  }
-                  sx={{
-                    "& .MuiSvgIcon-root": {
-                      fontSize: "2.5rem",
-                    },
-                    width: "30rem",
-                  }}
-                  className={styles.radio}
-                />
-                <FormControlLabel
-                  value="PAYPAL"
-                  control={
-                    <Radio
-                      sx={{
-                        "&.Mui-checked": {
-                          color: "var(--primary-color)",
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <span className={styles.radioLabel}>
-                      <p style={{ marginRight: "12.5rem" }}>PayPal</p>
-                      <PaymentTwoToneIcon
-                        style={{
-                          fontSize: "3.5rem",
-                          color:
-                            paymentValue === "PAYPAL"
-                              ? "var(--primary-color)"
-                              : null,
-                        }}
-                      />
-                    </span>
-                  }
-                  sx={{
-                    "& .MuiSvgIcon-root": {
-                      fontSize: "2.5rem",
-                    },
-                    width: "30rem",
-                  }}
-                  className={styles.radio}
-                />
-              </RadioGroup>
-            </div>
-
-            <div
-              className="payment"
-              ref={paymentRef}
-              style={{ marginTop: "2.5rem" }}
-            ></div>
-
-            <div className={styles.line}></div>
-
-            <div className={styles.voucherWrapper}>
-              <div className={styles.voucherName}>
-                <SellOutlinedIcon className={styles.voucherIcon} />
-                <p>
-                  {voucherId === "" ? "Hãy chọn mã voucher của bạn" : voucherId}
-                </p>
+                {paymentValue === "PAYPAL" && isScript ? (
+                  <PayPalButton
+                    amount={Math.round(pricePaypal / 25000)}
+                    onSuccess={handlePaymentByPaypal}
+                    onError={(data) => {
+                      console.log(data);
+                    }}
+                  />
+                ) : null}
               </div>
-              <button
-                className={styles.voucherBtn}
-                onClick={handleSelectVoucher}
-              >
-                <p>Chọn Voucher</p>
+
+              <div className={styles.line}></div>
+
+              <div className={styles.voucherWrapper}>
+                <div className={styles.voucherName}>
+                  <SellOutlinedIcon className={styles.voucherIcon} />
+                  <p>
+                    {voucherId === ""
+                      ? "Hãy chọn mã voucher của bạn"
+                      : voucherId}
+                  </p>
+                </div>
+                <button
+                  className={styles.voucherBtn}
+                  onClick={handleSelectVoucher}
+                >
+                  <p>Chọn Voucher</p>
+                </button>
+              </div>
+
+              <button className={styles.orderBtn} onClick={handleOrderProduct}>
+                <ShoppingCartIcon className={styles.orderIcon} />
+                <p>Đặt hàng</p>
               </button>
-            </div>
-
-            <button className={styles.orderBtn} onClick={handleOrderProduct}>
-              <ShoppingCartIcon className={styles.orderIcon} />
-              <p>Đặt hàng</p>
-            </button>
-          </>
+            </>
+          ) : (
+            <Voucher
+              setVoucherSelect={setVoucherSelect}
+              setVoucherPrice={setVoucherPrice}
+              setVoucherId={setVoucherId}
+            />
+          )}
         </div>
       </div>
     </div>

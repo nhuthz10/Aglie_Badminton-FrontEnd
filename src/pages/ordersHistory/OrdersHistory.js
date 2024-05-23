@@ -42,8 +42,9 @@ function OrdersHistory() {
   const [orderStatus, setOrderStatus] = useState(1);
   const [allStatus, setAllStatus] = useState(STATUSES);
   const allOrder = useSelector((state) => state.order.allOrder.data);
-  const dispatch = useDispatch();
+console.log(allOrder);
 
+  const dispatch = useDispatch();
   const handleChangeStatus = (status) => {
     let result = allStatus.map((item) => {
       item.key === status.key

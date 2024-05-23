@@ -3,7 +3,7 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import Favourite from "../../pages/favourite/Favourite";
 import FeedBack from "../../pages/feedBack/FeedBack";
-import Cart from "../../pages/cart/Cart";
+import Cart from "../../pages/cart/Cart"
 import Profile from "../../pages/profile/Profile";
 import OrdersDetail from "../../pages/ordersDetail/OrdersDetail";
 import Error from "../../pages/error/Error";
