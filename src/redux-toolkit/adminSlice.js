@@ -3,7 +3,6 @@ import {
   handleGetAllUserService,
   handleGetAllRoleService,
 } from "../services/userService";
-import dayjs from "dayjs";
 import {
   handleGetAllBrandService,
   handleGetAllProductTypeService,
@@ -12,8 +11,6 @@ import {
   handleGetAllProductSizeService,
   handleGetAllSizeOfTheProductType,
   handleGetAllVoucher,
-  handleGetAllOrderAdmin,
-  handleGetAllProductReport,
 } from "../services/productService";
 import { toast } from "react-toastify";
 
@@ -29,13 +26,7 @@ const initialState = {
   allProductSizeOfTheProductType: [],
   allVoucher: [],
   productData: {},
-  allOrder: [],
-  allProductOrder: [],
   searchTextProductAdmin: null,
-  timeReport: {
-    timeStart: dayjs(dayjs().startOf("month").toDate()).valueOf(),
-    timeEnd: dayjs(dayjs().endOf("month").toDate()).valueOf(),
-  },
 };
 
 export const fetchAllUserRedux = createAsyncThunk(
@@ -233,51 +224,6 @@ export const fetchAllVoucherRedux = createAsyncThunk(
   }
 );
 
-export const fetchAllOrderAdminRedux = createAsyncThunk(
-  "admin/fetchAllOrderRedux",
-  async (params, thunkAPI) => {
-    try {
-      let res = await handleGetAllOrderAdmin(
-        params?.status,
-        params?.limit,
-        params?.page
-      );
-      if (res && res.errCode === 0) {
-        thunkAPI.dispatch(fetchAllOrderSuccess(res));
-      } else {
-        thunkAPI.dispatch(fetchAllOrderFailed());
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      thunkAPI.dispatch(fetchAllOrderFailed());
-      console.log(error);
-    }
-  }
-);
-
-export const fetchAllProductOrderRedux = createAsyncThunk(
-  "admin/fetchAllProductOrderRedux",
-  async (params, thunkAPI) => {
-    try {
-      let res = await handleGetAllProductReport(
-        params?.timeStart,
-        params?.timeEnd,
-        params?.limit,
-        params?.page
-      );
-      if (res && res.errCode === 0) {
-        thunkAPI.dispatch(fetchAllProductOrderSuccess(res));
-      } else {
-        thunkAPI.dispatch(fetchAllProductOrderFailed());
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      thunkAPI.dispatch(fetchAllProductOrderFailed());
-      console.log(error);
-    }
-  }
-);
-
 export const userSlice = createSlice({
   name: "admin",
   initialState,
@@ -351,15 +297,6 @@ export const userSlice = createSlice({
     handleChangeSearchProductAdmin: (state, action) => {
       state.searchTextProductAdmin = action.payload;
     },
-    fetchAllProductOrderSuccess: (state, action) => {
-      state.allProductOrder = action.payload;
-    },
-    fetchAllProductOrderFailed: (state, action) => {
-      state.allProductOrder = [];
-    },
-    handleChangeTimeReport: (state, action) => {
-      state.timeReport = action.payload;
-    },
   },
 });
 
@@ -385,12 +322,7 @@ export const {
   CRUDProuctSize,
   fetchAllVoucherSuccess,
   fetchAllVoucherFailed,
-  fetchAllOrderSuccess,
-  fetchAllOrderFailed,
   handleChangeSearchProductAdmin,
-  fetchAllProductOrderSuccess,
-  fetchAllProductOrderFailed,
-  handleChangeTimeReport,
 } = userSlice.actions;
 
 export default userSlice.reducer;

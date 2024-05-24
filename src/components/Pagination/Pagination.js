@@ -9,14 +9,15 @@ import {
   fetchAllBrandRedux,
   fetchAllProductTypeRedux,
   fetchAllSizeRedux,
-  fetchAllVoucherRedux,
   fetchAllProductRedux,
   fetchAllProductSizeRedux,
   fetchAllProductSizeOfTheProductTypeRedux,
+  fetchAllVoucherRedux,
 } from "../../redux-toolkit/adminSlice";
 import {
   fetchAllProductOfTheProductTypeRedux,
   loadingProduct,
+  fetchAllProductFavouriteRedux,
 } from "../../redux-toolkit/productSlice";
 import { fetchAllProductSearchRedux } from "../../redux-toolkit/searchSlice";
 import { loadingAdmin } from "../../redux-toolkit/adminSlice";
@@ -27,9 +28,10 @@ import {
 } from "../../redux-toolkit/paginationSlice";
 import styles from "./Pagination.module.scss";
 
-function PaginatedItems({ type, productTypeId }) {
+function PaginatedItems({ type, productTypeId, orderStatus }) {
   const dispatch = useDispatch();
   const [totalPage, setTotalPage] = useState(1);
+  const totalPageUser = useSelector((state) => state.admin.allUser.totalPage);
   const totalPageBrand = useSelector((state) => state.admin.allBrand.totalPage);
   const totalPageProductType = useSelector(
     (state) => state.admin.allProductType.totalPage
@@ -47,6 +49,9 @@ function PaginatedItems({ type, productTypeId }) {
     (state) => state.search.allResultSearch.totalPage
   );
   const totalVoucher = useSelector((state) => state.admin.allVoucher.totalPage);
+  const totalProductFavourite = useSelector(
+    (state) => state.product.allProductFavourite.totalPage
+  );
   const productData = useSelector((state) => state.admin.productData);
   const filter = useSelector((state) => state.product.filter);
   const sort = useSelector((state) => state.product.sort);
@@ -57,8 +62,12 @@ function PaginatedItems({ type, productTypeId }) {
     (state) => state.product.allProductOfTheProductType.data
   );
 
+  const listProductFavourite = useSelector(
+    (state) => state.product.allProductFavourite.data
+  );
+
   const searchText = useSelector((state) => state.search.searchText);
-  const timeReport = useSelector((state) => state.admin.timeReport);
+
   const searchProductAdmin = useSelector(
     (state) => state.admin.searchTextProductAdmin
   );
@@ -180,6 +189,7 @@ function PaginatedItems({ type, productTypeId }) {
       getAllDataProduct();
     } else if (type === "search-product") {
       let getAllDataSearch = async () => {
+        dispatch(loadingProduct(true));
         await dispatch(
           fetchAllProductSearchRedux({
             limit: LIMIT_SEARCH,
@@ -187,6 +197,7 @@ function PaginatedItems({ type, productTypeId }) {
             name: searchText,
           })
         );
+        dispatch(loadingProduct(false));
         dispatch(handleResetPagination(false));
         dispatch(handleResetPagination(false));
       };
@@ -205,6 +216,20 @@ function PaginatedItems({ type, productTypeId }) {
         dispatch(handleResetPagination(false));
       };
       getAllDataVoucher();
+    } else if (type === "favourite-product") {
+      let getAllDataProduct = async () => {
+        dispatch(loadingProduct(true));
+        await dispatch(
+          fetchAllProductFavouriteRedux({
+            userId: userId,
+            limit: LIMIT_SEARCH,
+            page: pageCount,
+          })
+        );
+        dispatch(loadingProduct(false));
+        dispatch(handleResetPagination(false));
+      };
+      getAllDataProduct();
     }
   }, [
     type,
@@ -216,13 +241,15 @@ function PaginatedItems({ type, productTypeId }) {
     sort,
     filter,
     searchText,
+    orderStatus,
     userId,
     searchProductAdmin,
-    timeReport,
   ]);
 
   useEffect(() => {
-    if (type === "product-brand") {
+    if (type === "user") {
+      setTotalPage(totalPageUser);
+    } else if (type === "product-brand") {
       setTotalPage(totalPageBrand);
     } else if (type === "product-type") {
       setTotalPage(totalPageProductType);
@@ -238,16 +265,20 @@ function PaginatedItems({ type, productTypeId }) {
       setTotalPage(totalProductSearch);
     } else if (type === "voucher") {
       setTotalPage(totalVoucher);
+    } else if (type === "favourite-product") {
+      setTotalPage(totalProductFavourite);
     }
   }, [
-    totalVoucher,
+    totalProductFavourite,
     totalPageBrand,
     totalPageProductType,
     totalPageSize,
+    totalPageUser,
     totalProduct,
     totalProductOfTheProductType,
     totalProductSearch,
     totalProductSize,
+    totalVoucher,
     type,
   ]);
 
@@ -257,7 +288,8 @@ function PaginatedItems({ type, productTypeId }) {
 
   return (
     <div style={{ marginTop: "3rem" }}>
-      {(type === "user-product" && listProduct?.length === 0) ||
+      {((type === "user-product" || type === "favourite-product") &&
+        (listProduct?.length === 0 || listProductFavourite?.length === 0)) ||
       isResetPagination ? null : (
         <ReactPaginate
           nextLabel={

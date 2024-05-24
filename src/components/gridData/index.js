@@ -7,21 +7,18 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-
 import { Link, useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 import "./gridData.scss";
 import PaginatedItems from "../../components/Pagination/Pagination";
 import { path } from "../../utils";
 import ModalDelete from "../../components/modalDelete";
-import { useForm } from "react-hook-form";
+import dayjs from "dayjs";
 import { LIMIT } from "../../utils";
 import {
   handleChangePage,
   handleResetPagination,
 } from "../../redux-toolkit/paginationSlice";
 import { handleChangeSearchProductAdmin } from "../../redux-toolkit/adminSlice";
-import { toast } from "react-toastify";
 
 const currencyFormatter = new Intl.NumberFormat("vi-VN", {
   style: "decimal",
@@ -33,6 +30,7 @@ function GridData({
   gridType,
   tableColumns,
   headerString,
+  orderStatus,
   handleDelete,
   getRoleString,
 }) {
@@ -50,17 +48,9 @@ function GridData({
     (state) => state.admin.allProductSize?.data
   );
   const voucherData = useSelector((state) => state.admin.allVoucher?.data);
+  const orderData = useSelector((state) => state.admin.allOrder?.data);
   const page = useSelector((state) => state.pagination.page);
   const navigate = useNavigate();
-
-  const {
-    handleSubmit,
-    register,
-    control,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = useForm();
 
   const inputRef = useRef();
   const dispatch = useDispatch();
@@ -95,14 +85,15 @@ function GridData({
     } else if (gridType === "voucher") {
       setPaginationData(voucherData);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     brandData,
     gridType,
+    orderData,
     productData,
     productSizeData,
     productTypeData,
     sizeData,
+    userData,
     voucherData,
   ]);
 
@@ -330,7 +321,7 @@ function GridData({
           </tbody>
         </table>
       </div>
-      <PaginatedItems type={gridType} />
+      <PaginatedItems type={gridType} orderStatus={orderStatus} />
     </div>
   );
 }

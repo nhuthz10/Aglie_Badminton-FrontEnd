@@ -8,7 +8,6 @@ import paginationSlice from "./paginationSlice";
 import productSlice from "./productSlice";
 import adminSlice from "./adminSlice";
 import searchSlice from "./searchSlice";
-import orderSlice from "./orderSlice";
 
 const persistCommonConfig = {
   storage: storage,
@@ -28,7 +27,6 @@ const customizedMiddleware = getDefaultMiddleware({
 const store = configureStore({
   reducer: {
     user: persistReducer(userPersistConfig, userSlice),
-    order: orderSlice,
     pagination: paginationSlice,
     product: productSlice,
     search: searchSlice,

@@ -7,7 +7,7 @@ import {
   faChevronDown,
   faRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
-
+import Search from "../../components/Search/Search";
 import { toast } from "react-toastify";
 import logo from "../../assets/logo1.png";
 import styles from "./Header.module.scss";
@@ -123,6 +123,8 @@ function Header() {
       >
         SALE OFF
       </div>
+
+      <Search></Search>
 
       {login ? (
         <div className={styles.actions}>

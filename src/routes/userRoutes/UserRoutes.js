@@ -2,6 +2,8 @@ import React from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import Cart from "../../pages/cart/Cart";
+import Favourite from "../../pages/favourite/Favourite";
+import FeedBack from "../../pages/feedBack/FeedBack";
 import Error from "../../pages/error/Error";
 import UserLayout from "../../layout/userLayout/UserLayout";
 import { path } from "../../utils";
@@ -13,6 +15,22 @@ var userPages = [
     element: (
       <UserLayout>
         <Cart />
+      </UserLayout>
+    ),
+  },
+  {
+    path: "feedback",
+    element: (
+      <UserLayout>
+        <FeedBack />
+      </UserLayout>
+    ),
+  },
+  {
+    path: "favourite",
+    element: (
+      <UserLayout>
+        <Favourite />
       </UserLayout>
     ),
   },

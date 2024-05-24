@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   handleGetAllProductService,
   handleGetAllProductOfTheProductType,
-  handleGetAllProductSaleOffService,
   handleGetAllProductFavorute,
 } from "../services/productService";
 import { toast } from "react-toastify";
@@ -10,7 +9,6 @@ import { toast } from "react-toastify";
 const initialState = {
   isLoading: false,
   allProducts: [],
-  allProductSaleOff: [],
   allProductFavourite: [],
   allProductOfTheProductType: [],
   filter: {},
@@ -64,27 +62,6 @@ export const fetchAllProductOfTheProductTypeRedux = createAsyncThunk(
   }
 );
 
-export const fetchAllProductSaleOffRedux = createAsyncThunk(
-  "admin/fetchAllProductSaleOffRedux",
-  async (params, thunkAPI) => {
-    try {
-      let res = await handleGetAllProductSaleOffService(
-        params?.limit,
-        params?.page
-      );
-      if (res && res.errCode === 0) {
-        thunkAPI.dispatch(fetchAllProductSaleOffSuccess(res));
-      } else {
-        thunkAPI.dispatch(fetchAllProductSaleOffFailed());
-      }
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      thunkAPI.dispatch(fetchAllProductSaleOffFailed());
-      console.log(error);
-    }
-  }
-);
-
 export const fetchAllProductFavouriteRedux = createAsyncThunk(
   "admin/fetchAllProductFavouriteRedux",
   async (params, thunkAPI) => {
@@ -132,12 +109,6 @@ export const productSlice = createSlice({
     handleFilterProduct: (state, action) => {
       state.filter = action.payload;
     },
-    fetchAllProductSaleOffSuccess: (state, action) => {
-      state.allProductSaleOff = action.payload;
-    },
-    fetchAllProductSaleOffFailed: (state, action) => {
-      state.allProductSaleOff = [];
-    },
     fetchAllProductFavouriteSuccess: (state, action) => {
       state.allProductFavourite = action.payload;
     },
@@ -155,8 +126,6 @@ export const {
   loadingProduct,
   handleSortProduct,
   handleFilterProduct,
-  fetchAllProductSaleOffSuccess,
-  fetchAllProductSaleOffFailed,
   fetchAllProductFavouriteSuccess,
   fetchAllProductFavouriteFailed,
 } = productSlice.actions;

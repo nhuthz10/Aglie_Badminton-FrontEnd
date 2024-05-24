@@ -25,10 +25,6 @@ let handleUpdateUser = (data) => {
   return axios.put("/api/user/update-user", data);
 };
 
-let handleChangePasswordProfile = (data) => {
-  return axios.put("/api/user/change-password-profile", data);
-};
-
 let handleGetAllUserService = (limit, page, name) => {
   return axios.get(
     `/api/user/get-all-user?limit=${limit}&page=${page}&name=${name}`
@@ -69,7 +65,6 @@ export {
   handleChangePasswordService,
   handleGetInforUserService,
   handleUpdateUser,
-  handleChangePasswordProfile,
   handleGetAllUserService,
   handleDeleteService,
   handleGetAllRoleService,

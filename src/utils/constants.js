@@ -5,6 +5,7 @@ export const path = {
   LOGIN: "/login",
   REGISTER: "/register",
   NOT_FOUND: "/not-found",
+  FORGOT_PASSWORD: "/forgot-password",
   CHANGE_PASSWORD: "/change-password/:userEmail",
 
   ADMIN: "/admin/*",
@@ -14,15 +15,8 @@ export const path = {
   PRODUCT_BRAND_ADMIN: "product-brand",
   PRODUCT_SIZE_ADMIN: "product-size",
   PRODUCT_PRODUCTSIZE_ADMIN: "productsize",
-  ORDER_DETAIL: "/:orderStatus/:orderId",
-  ORDER_ADMIN: "order",
-  ORDER_WAITING_ADMIN: "order-waiting",
-  ORDER_DELIVERY_ADMIN: "order-delivery",
-  ORDER_DONE_ADMIN: "order-done",
-  ORDER_CANCELED_ADMIN: "order-canceled",
   USER_ADMIN: "user",
   VOUCHER_ADMIN: "voucher",
-  REVENUE_ADMIN: "revenue",
   POST_ADMIN: "create",
   PUT_ADMIN: "edit",
 };
@@ -30,7 +24,6 @@ export const path = {
 export const LIMIT = 10;
 export const LIMIT_SEARCH = 12;
 export const LIMIT_PRODUCT = 6;
-export const LIMIT_ORDER = 5;
 
 export const regex = {
   // eslint-disable-next-line no-useless-escape

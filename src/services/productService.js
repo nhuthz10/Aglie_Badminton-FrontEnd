@@ -148,50 +148,6 @@ let handleGetAllVoucherUserService = () => {
   return axios.get(`/api/voucher/get-all-voucher-user`);
 };
 
-let handleGetPaypalClientId = () => {
-  return axios.get("/api/product/get-paypal-id");
-};
-
-let handleCreateNewOrderService = (data) => {
-  return axios.post("/api/order/create-order", data);
-};
-
-let handleGetAllOrderService = (userId, status, limit, page) => {
-  return axios.get(
-    `/api/order/get-all-order?userId=${userId}&status=${status}&limit=${limit}&page=${page}`
-  );
-};
-
-let handleGetOrderDetailService = (orderId) => {
-  return axios.get(`/api/order/get-order-detail?orderId=${orderId}`);
-};
-
-let handleCancleOrderService = (data) => {
-  return axios.put(`/api/order/cancle-order`, data);
-};
-
-let handleDeliveringOrderService = (orderId) => {
-  return axios.put(`/api/order/delivering-order?orderId=${orderId}`);
-};
-
-let handleSucceedOrderService = (orderId) => {
-  return axios.put(`/api/order/succeed-order?orderId=${orderId}`);
-};
-
-let handleDeleteOrderService = (orderId) => {
-  return axios.delete(`/api/order/delete-order?orderId=${orderId}`);
-};
-
-let handleGetAllOrderAdmin = (status, limit, page) => {
-  return axios.get(
-    `/api/order/get-all-order-admin?status=${status}&limit=${limit}&page=${page}`
-  );
-};
-
-let handleGetAllOrderStatistics = () => {
-  return axios.get(`/api/order/order-statistics`);
-};
-
 let handleGetAllProductFeedback = (userId) => {
   return axios.get(`/api/product/get-product-feedback?userId=${userId}`);
 };
@@ -212,18 +168,6 @@ let handleDeleteFeedbackService = (id) => {
   return axios.delete(`/api/feedback/delete-feedback?id=${id}`);
 };
 
-let handleGetAllProductSaleOffService = (limit, page) => {
-  return axios.get(
-    `/api/product/get-product-sale-off?limit=${limit}&page=${page}`
-  );
-};
-
-let handleGetAllProductReport = (timeStart, timeEnd, limit, page) => {
-  return axios.get(
-    `/api/order/order-report?timeStart=${timeStart}&timeEnd=${timeEnd}&limit=${limit}&page=${page}`
-  );
-};
-
 let handleGetAllProductFavorute = (limit, page, userId) => {
   return axios.get(
     `/api/product/get-product-favourite?userId=${userId}&limit=${limit}&page=${page}`
@@ -234,13 +178,7 @@ let handleGetProductName = (productId) => {
   return axios.get(`/api/product/get-product-name?productId=${productId}`);
 };
 
-let handlePaymentByVnPayService = (data) => {
-  return axios.post(`/api/order/create_payment_url`, data);
-};
-
 export {
-  handlePaymentByVnPayService,
-  handleGetAllOrderStatistics,
   handleGetAllProductTypeService,
   handleCreateProductTypeService,
   handleUpdateProductTypeService,
@@ -273,22 +211,11 @@ export {
   handleUpdateProductCartService,
   handleDeleteProductCartService,
   handleGetAllVoucherUserService,
-  handleGetPaypalClientId,
-  handleCreateNewOrderService,
-  handleGetAllOrderService,
-  handleGetOrderDetailService,
-  handleCancleOrderService,
-  handleDeliveringOrderService,
-  handleGetAllOrderAdmin,
-  handleSucceedOrderService,
-  handleDeleteOrderService,
   handleGetAllProductFeedback,
   handleCreateFeedbackService,
   handleAllFeedbackService,
   handleUpdateFeedbackService,
   handleDeleteFeedbackService,
-  handleGetAllProductSaleOffService,
-  handleGetAllProductReport,
   handleGetAllProductFavorute,
   handleGetProductName,
 };

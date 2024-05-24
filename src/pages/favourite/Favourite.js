@@ -90,7 +90,7 @@ function Favourite() {
   };
 
   return (
-    <div className="sale-off-container">
+    <div className="favourite-container">
       <Grid container spacing={5}>
         {paginationData && paginationData?.length > 0 ? (
           paginationData?.map((item, index) => {

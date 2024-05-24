@@ -10,6 +10,8 @@ import BrandAdmin from "../../system/brandAdmin/brandAdmin";
 import ProductAdmin from "../../system/productAdmin/productAdmin";
 import ProductTypePost from "../../system/productTypeAdmin/ProductTypePost";
 import VoucherAdmin from "../../system/voucherAdmin/VoucherAdmin";
+import VoucherPost from "../../system/voucherAdmin/VoucherPost";
+import UserPost from "../../system/userAdmin/UserPost";
 import SizePost from "../../system/sizeAdmin/SizePost";
 import BrandPost from "../../system/brandAdmin/brandPost";
 import ProductPost from "../../system/productAdmin/ProductPost";
@@ -25,6 +27,14 @@ function AdminRoutes() {
       <Route path={path.PRODUCT_BRAND_ADMIN} element={<BrandAdmin />} />
       <Route path={path.PRODUCT_SIZE_ADMIN} element={<SizeAdmin />} />
       <Route path={path.VOUCHER_ADMIN} element={<VoucherAdmin />} />
+      <Route
+        path={`${path.USER_ADMIN}/${path.POST_ADMIN}`}
+        element={<UserPost />}
+      />
+      <Route
+        path={`${path.USER_ADMIN}/${path.PUT_ADMIN}`}
+        element={<UserPost />}
+      />
       <Route
         path={`${path.PRODUCT_TYPE_ADMIN}/${path.POST_ADMIN}`}
         element={<ProductTypePost />}
@@ -68,6 +78,14 @@ function AdminRoutes() {
       <Route
         path={`${path.PRODUCT_ADMIN}/${path.PRODUCT_PRODUCTSIZE_ADMIN}/${path.PUT_ADMIN}`}
         element={<ProductSizePost />}
+      />
+      <Route
+        path={`${path.VOUCHER_ADMIN}/${path.POST_ADMIN}`}
+        element={<VoucherPost />}
+      />
+      <Route
+        path={`${path.VOUCHER_ADMIN}/${path.PUT_ADMIN}`}
+        element={<VoucherPost />}
       />
       <Route path="*" element={<Error />} />
     </Routes>
